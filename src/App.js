@@ -1,26 +1,25 @@
 import React from 'react';
-import logo from './logo.svg';
+import thunk from 'redux-thunk'; // for async dispatcher
+import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import './App.css';
+import { createStore, applyMiddleware, compose } from 'redux';
+import reducers from './reducers';
+
+const store = createStore(
+	reducers,
+	compose(
+		applyMiddleware(thunk),
+		window.devToolsExtension ? window.devToolsExtension() : () => {}
+	)
+);
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	return (
+		<Provider store={store}>
+			<BrowserRouter></BrowserRouter>
+		</Provider>
+	);
 }
 
 export default App;
