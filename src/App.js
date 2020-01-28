@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import { createStore, applyMiddleware, compose } from 'redux';
 import reducers from './reducers';
+import { FileUpload } from './container/FileContainer/FileUpload.react';
 
 const store = createStore(
 	reducers,
@@ -17,7 +18,8 @@ const store = createStore(
 function App() {
 	return (
 		<Provider store={store}>
-			<BrowserRouter></BrowserRouter>
+			{/* <BrowserRouter></BrowserRouter> */}
+			<FileUpload></FileUpload>
 		</Provider>
 	);
 }
