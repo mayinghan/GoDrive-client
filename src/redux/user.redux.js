@@ -6,6 +6,7 @@ const AUTH_SUCC = 'AUTH_SUCC';
 const LOGOUT = 'LOGOUT';
 const ERROR_MSG = 'ERROR_MSG';
 
+// init state
 const initState = {
 	redirectTo: '',
 	msg: '',
