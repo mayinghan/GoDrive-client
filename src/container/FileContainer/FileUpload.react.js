@@ -21,13 +21,15 @@ const { Dragger } = Upload;
 const props = {
 	name: 'file',
 	multiple: false,
+	withCredentials: true,
 	action: '/api/file/upload',
 	onChange(info) {
-		const { status } = info.file;
+		const { status, response } = info.file;
 		if (status !== 'uploading') {
 			console.log(info.file, info.fileList);
 		}
 		if (status === 'done') {
+			console.log(response)
 			message.success(`${info.file.name} file uploaded successfully.`);
 		} else if (status === 'error') {
 			message.error(`${info.file.name} file upload failed.`);
