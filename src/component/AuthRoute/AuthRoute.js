@@ -10,7 +10,7 @@ import { Route, Switch } from 'react-router-dom';
 
 
 function Home() {
-	return <h2>GoDrive Homepage</h2>;
+	return <h2 style={{textAlign: 'center'}}>GoDrive Homepage</h2>;
 }
 
 function NoMatch() {

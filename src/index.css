@@ -11,3 +11,40 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.login-form {
+	max-width: 300px;
+}
+.login-form-forgot {
+	float: right;
+}
+.login-form-button {
+	text-align: center;
+}
+.title-middle {
+	text-align: center;
+	position: relative;
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+.navbar-logout {
+	float: right;
+	margin-right: 15px;
+}
+.navbar-right {
+	float: right;
+}
+.navbar-title {
+	font-size: 16pt;
+}
+
+.col-center {
+	float: none;
+	margin: 0 auto;
+}
+
+.table-margin-sides {
+	margin-left: 50px;
+	margin-right: 50px;
+}
