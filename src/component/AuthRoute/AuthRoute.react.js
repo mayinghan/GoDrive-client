@@ -97,23 +97,6 @@ class AuthRoute extends React.Component {
 				className: 'navbar-title',
 				hide: false
 			},
-/*			
-			{
-				text: 'My Files',
-				hide: !isAuth,
-				subItem: [
-					{
-                        path: '/Upload',
-                        text: 'Upload my file',
-						component: Upload
-					},
-					{
-                        path: '/Download',
-                        text: 'Download file',
-                        component: Download,
-					}
-				]
-			},*/
 		{
 				path: '/register',
 				text: 'Register',
