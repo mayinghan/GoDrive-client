@@ -1,38 +1,18 @@
-import { Form, Input, Button } from 'antd';
+import React from 'react';
+import { Typography } from 'antd';
+import { LoginForm } from '../../component/Authen/LoginForm.react';
 
-const layout = {
-	labelCol: {
-		xs: { span: 24 },
-		sm: { span: 8 }
-	},
-	wrappedCol: {
-		xs: { span: 24 },
-		sm: { span: 16 }
-	}
-};
+const { Paragraph } = Typography;
 
-const tailFormItemLayout = {
-	wrapperCol: {
-		xs: {
-			span: 24,
-			offset: 0
-		},
-		sm: {
-			span: 16,
-			offset: 8
-		}
-	}
-};
-
-const LoginForm = () => {
-	const [form] = Form.useForm();
-
-	const onSubmit = v => {
-		// handle submit
-		console.log(v);
-	};
-
-	const onFailed = ({ errorFields }) => {
-		form.scrollToField(errorFields[0].name);
-	};
+export const Login = () => {
+	return (
+		<div>
+			<Paragraph className='title-middle'>
+				<h3>Log in to GoDrive</h3>
+			</Paragraph>
+			<Paragraph>
+				<LoginForm></LoginForm>
+			</Paragraph>
+		</div>
+	);
 };

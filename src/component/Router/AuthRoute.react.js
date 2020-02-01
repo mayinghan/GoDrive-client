@@ -3,14 +3,12 @@ import axios from 'axios';
 import { withRouter } from 'react-router-dom';
 import { loadData } from '../../redux/user.redux';
 import { connect } from 'react-redux';
-import NavBar from '../NavBar/NavBar';
+import NavBar from '../NavBar/NavBar.react';
 import { Route, Switch } from 'react-router-dom';
-//import Login from '../../container/auth/Login';
-//import Register from '../../container/auth/Register';
-
+import { Login } from '../../container/Authen/Login.react';
 
 function Home() {
-	return <h2 style={{textAlign: 'center'}}>GoDrive Homepage</h2>;
+	return <h2 style={{ textAlign: 'center' }}>GoDrive Homepage</h2>;
 }
 
 function NoMatch() {
@@ -68,7 +66,7 @@ class AuthRoute extends React.Component {
 		super(props);
 		console.log('checking if logged');
 
-/*		const publicList = ['/login', '/register'];
+		/*		const publicList = ['/login', '/register'];
 		const pathname = this.props.location.pathname;
 		if (publicList.indexOf(pathname) === -1) {
 			axios.get('/api/user/info').then(res => {
@@ -83,8 +81,7 @@ class AuthRoute extends React.Component {
 			});
         }
         */
-    }
-
+	}
 
 	render() {
 		const isAuth = this.props.user.isAuth;
@@ -97,18 +94,18 @@ class AuthRoute extends React.Component {
 				className: 'navbar-title',
 				hide: false
 			},
-		{
+			{
 				path: '/register',
 				text: 'Register',
 				//component: Register,
 				className: rightNavbarClass,
 				hide: isAuth
-            },
-          
+			},
+
 			{
 				path: '/login',
 				text: 'Login',
-				//component: Login,
+				component: Login,
 				className: rightNavbarClass,
 				hide: isAuth
 			},
@@ -119,7 +116,7 @@ class AuthRoute extends React.Component {
 				subItem: [
 					{
 						path: '/edit-profile',
-						text: 'Edit Profile',
+						text: 'Edit Profile'
 						//component: EditProfile
 					},
 					{
