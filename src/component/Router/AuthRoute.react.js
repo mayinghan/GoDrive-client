@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import NavBar from '../NavBar/NavBar.react';
 import { Route, Switch } from 'react-router-dom';
 import { Login } from '../../container/Authen/Login.react';
+import { Register } from '../../container/Authen/Register.react';
 import { FileUpload } from '../../container/FileContainer/FileUpload.react';
 
 function Home() {
@@ -98,7 +99,7 @@ class AuthRoute extends React.Component {
 			{
 				path: '/register',
 				text: 'Register',
-				//component: Register,
+				component: Register,
 				className: rightNavbarClass,
 				hide: isAuth
 			},
