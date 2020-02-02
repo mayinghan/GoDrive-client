@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import NavBar from '../NavBar/NavBar.react';
 import { Route, Switch } from 'react-router-dom';
 import { Login } from '../../container/Authen/Login.react';
+import { FileUpload } from '../../container/FileContainer/FileUpload.react';
 
 function Home() {
 	return <h2 style={{ textAlign: 'center' }}>GoDrive Homepage</h2>;
@@ -90,7 +91,7 @@ class AuthRoute extends React.Component {
 			{
 				path: '/',
 				text: 'GoDrive',
-				component: Home,
+				component: FileUpload,
 				className: 'navbar-title',
 				hide: false
 			},

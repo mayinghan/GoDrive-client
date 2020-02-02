@@ -6,7 +6,6 @@ import AuthRoute from './component/Router/AuthRoute.react';
 import './App.css';
 import { createStore, applyMiddleware, compose } from 'redux';
 import reducers from './reducers';
-import { FileUpload } from './container/FileContainer/FileUpload.react';
 
 const store = createStore(
 	reducers,
