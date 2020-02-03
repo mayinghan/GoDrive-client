@@ -2,7 +2,6 @@ import React from 'react';
 import { Form, Input, Button } from 'antd';
 const { Item } = Form;
 
-
 const layout = {
 	labelCol: {
 		xs: { span: 24 },
@@ -28,7 +27,6 @@ const tailFormItemLayout = {
 };
 
 export const RegisterForm = () => {
-
 	const [form] = Form.useForm();
 
 	const onSubmit = v => {
@@ -38,20 +36,27 @@ export const RegisterForm = () => {
 
 	const onFailed = ({ errorFields }) => {
 		form.scrollToField(errorFields[0].name);
-    };
-    
-    const compareToFirstPassword = (rule, value) => {
-        if (value && value !== this.current.getFieldValue('pwd')) {
-          return Promise.reject('Two passwords that you enter is inconsistent!');
-        } else {
-          return Promise.resolve();
-        }
-      };
-    
-    return (
+	};
+
+	const confirmPassword = ({ getFieldValue }) => {
+		return {
+			validator(rule, value) {
+				console.log(getFieldValue('password'));
+				if (!value || getFieldValue('password') === value) {
+					return Promise.resolve();
+				}
+				return Promise.reject(
+					'The two passwords that you entered do not match!'
+				);
+			}
+		};
+	};
+
+	return (
 		<Form
 			{...layout}
-            name='register'
+			form={form}
+			name='register'
 			onFinish={onSubmit}
 			onFinishFailed={onFailed}
 		>
@@ -64,37 +69,41 @@ export const RegisterForm = () => {
 			</Item>
 			<Item
 				label='E-mail'
-				name='emial'
-				rules={[{ required: true, message: 'Please input your E-mail' }]}
+				name='email'
+				rules={[
+					{ required: true, message: 'Please input your E-mail' },
+					{
+						type: 'email',
+						message: 'Input format is invalid! Please use an email address'
+					}
+				]}
 			>
 				<Input />
 			</Item>
 			<Item
 				label='Password'
 				name='password'
-                rules={[{ required: true, message: 'Please input your password' }]}
-                hasFeedback
+				rules={[{ required: true, message: 'Please input your password' }]}
+				hasFeedback
 			>
-                <Input.Password />
+				<Input.Password />
 			</Item>
-            <Item
-              name='confirm'
-              label="Confirm Password"
-              dependencies={['pwd']}
-              rules={[
-                {
-                  required: true,
-                  message: ''
-                },
-                {
-                  validator: compareToFirstPassword
-                }
-              ]}
-              hasFeedback
-            >
-              <Input.Password />
-            </Item>
-           
+			<Item
+				name='confirm'
+				label='Confirm Password'
+				dependencies={['password']}
+				rules={[
+					{
+						required: true,
+						message: 'Please confirm your password'
+					},
+					confirmPassword(form)
+				]}
+				hasFeedback
+			>
+				<Input.Password />
+			</Item>
+
 			<Item {...tailFormItemLayout}>
 				<Button type='primary' htmlType='submit'>
 					Register

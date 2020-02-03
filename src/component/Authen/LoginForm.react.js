@@ -43,6 +43,7 @@ export const LoginForm = () => {
 		<Form
 			{...layout}
 			name='login'
+			form={form}
 			onFinish={onSubmit}
 			onFinishFailed={onFailed}
 		>
