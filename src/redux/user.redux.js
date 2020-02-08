@@ -75,30 +75,12 @@ export function login({ input, pwd }) {
 
 export function register(userInput) {
 	console.log(userInput);
-	const {
-		email,
-		firstName,
-		lastName,
-		pwd,
-		confirm,
-		gender,
-		wechatId,
-		username
-	} = userInput;
-	if (
-		!email ||
-		!firstName ||
-		!lastName ||
-		!pwd ||
-		pwd !== confirm ||
-		!gender ||
-		!wechatId ||
-		!username
-	) {
+	const { email, pwd, confirm, username } = userInput;
+	if (!email || !pwd || pwd !== confirm || !username) {
 		return errorMsg('missing fields!');
 	}
-	const displayName = [firstName, lastName].join(' ');
-	const registerInfo = { ...userInput, displayName: displayName };
+
+	const registerInfo = { ...userInput };
 
 	return dispatch => {
 		axios.post('/api/user/register', registerInfo).then(res => {

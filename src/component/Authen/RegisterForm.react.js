@@ -1,5 +1,5 @@
-import React from 'react';
-import { Form, Input, Button } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Row, Col, Tooltip } from 'antd';
 const { Item } = Form;
 
 const layout = {
@@ -28,6 +28,7 @@ const tailFormItemLayout = {
 
 export const RegisterForm = () => {
 	const [form] = Form.useForm();
+	const [validEmail, setValidEmail] = useState(false);
 
 	const onSubmit = v => {
 		// handle submit
@@ -41,7 +42,6 @@ export const RegisterForm = () => {
 	const confirmPassword = ({ getFieldValue }) => {
 		return {
 			validator(rule, value) {
-				console.log(getFieldValue('password'));
 				if (!value || getFieldValue('password') === value) {
 					return Promise.resolve();
 				}
@@ -50,6 +50,27 @@ export const RegisterForm = () => {
 				);
 			}
 		};
+	};
+
+	const emailValidator = (rule, value) => {
+		if (!value || /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.[a-zA-Z]{2,4}$/.test(value)) {
+			return Promise.resolve();
+		}
+		return Promise.reject('Please enter a valid email address!');
+	};
+
+	const sendEmail = () => {
+		const email = form.getFieldValue('email');
+		console.log(email);
+	};
+
+	const handleEmailInput = e => {
+		const email = e.target.value;
+		if (/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.[a-zA-Z]{2,4}$/.test(email)) {
+			setValidEmail(true);
+		} else {
+			setValidEmail(false);
+		}
 	};
 
 	return (
@@ -72,13 +93,10 @@ export const RegisterForm = () => {
 				name='email'
 				rules={[
 					{ required: true, message: 'Please input your E-mail' },
-					{
-						type: 'email',
-						message: 'Input format is invalid! Please use an email address'
-					}
+					{ validator: emailValidator }
 				]}
 			>
-				<Input />
+				<Input onChange={e => handleEmailInput(e)} />
 			</Item>
 			<Item
 				label='Password'
@@ -103,7 +121,34 @@ export const RegisterForm = () => {
 			>
 				<Input.Password />
 			</Item>
-
+			<Item label='Code' rules={[{ required: true }]}>
+				<Row gutter={8}>
+					<Col span={16}>
+						<Item
+							name='code'
+							noStyle
+							rules={[
+								{
+									required: true,
+									message: 'Please input the email verification code you got!'
+								}
+							]}
+						>
+							<Input />
+						</Item>
+					</Col>
+					<Col span={6}>
+						<Tooltip
+							visible={!validEmail}
+							title='Enter a valid email address and get a verification code'
+						>
+							<Button disabled={!validEmail} onClick={sendEmail}>
+								Get Code
+							</Button>
+						</Tooltip>
+					</Col>
+				</Row>
+			</Item>
 			<Item {...tailFormItemLayout}>
 				<Button type='primary' htmlType='submit'>
 					Register
