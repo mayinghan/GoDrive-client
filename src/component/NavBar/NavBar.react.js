@@ -5,7 +5,7 @@ import { Menu, Modal, Avatar } from 'antd';
 import browserCookie from 'browser-cookies';
 import { logoutRedux } from '../../redux/user.redux';
 
-const { Item, SubMenu } = Menu;
+const { Item } = Menu;
 
 // deep filter an item in a high dimensional array
 const deepFilter = (arr, filterFunc) => {
@@ -33,19 +33,6 @@ class NavBar extends React.Component {
 		};
 	}
 
-	componentDidMount() {
-		this.setState({ location: this.props.location.pathname });
-		window.addEventListener('resize', this.updateWindowSize.bind(this));
-	}
-
-	componentWillUnmount() {
-		window.removeAllListener('resize');
-	}
-
-	updateWindowSize = e => {
-		this.setState({ ...this.state, screenWidth: e.target.innerWidth });
-	};
-
 	logout() {
 		console.log('logout');
 		this.setState({
@@ -66,28 +53,6 @@ class NavBar extends React.Component {
 	handleCancel = e => {
 		this.setState({
 			modalVisible: false
-		});
-	};
-
-	// helper function to handle sign out in a submenu
-	handleUserCenter = subItem => {
-		return subItem.map(item => {
-			if (item.text !== 'Sign out') {
-				return (
-					<Item
-						key={item.text}
-						onClick={() => this.props.history.push(item.path)}
-					>
-						{item.text}
-					</Item>
-				);
-			} else {
-				return (
-					<Item key='logout' onClick={() => this.logout()}>
-						Sign out
-					</Item>
-				);
-			}
 		});
 	};
 
@@ -117,12 +82,7 @@ class NavBar extends React.Component {
 						})()}
 					>
 						{list.map(choice => {
-							if (
-								choice.text !== 'Sign out' &&
-								choice.text !== 'No match' &&
-								choice.text !== 'Volunteer' &&
-								choice.text !== 'usercenter'
-							) {
+							if (choice.text !== 'Sign out') {
 								return (
 									<Item
 										key={choice.text}
@@ -132,83 +92,16 @@ class NavBar extends React.Component {
 										{choice.text}
 									</Item>
 								);
-							} else if (choice.text === 'Volunteer') {
-								const subList = choice.subItem;
-								return (
-									<SubMenu key={choice.text} title={choice.text}>
-										{subList.map(item => {
-											return (
-												<Item
-													key={item.text}
-													onClick={() => this.props.history.push(item.path)}
-												>
-													{item.text}
-												</Item>
-											);
-										})}
-									</SubMenu>
-								);
-							} else if (choice.text === 'usercenter') {
-								if (this.state.screenWidth >= 560) {
-									return (
-										<SubMenu
-											key={choice.text}
-											className={choice.className}
-											title={
-												<React.Fragment>
-													<Avatar style={{ verticalAlign: 'middle' }}>
-														{displayName.charAt(0)}
-													</Avatar>
-													&nbsp; &nbsp;
-													{displayName}
-												</React.Fragment>
-											}
-										>
-											{/* {choice.subItem.map(item => {
-											return <Item key={item.text}>{item.text}</Item>;
-										})} */}
-											{this.handleUserCenter(choice.subItem)}
-										</SubMenu>
-									);
-								} else if (this.state.screenWidth >= 477) {
-									return (
-										<SubMenu
-											key={choice.text}
-											className={choice.className}
-											title={
-												<React.Fragment>
-													<Avatar style={{ verticalAlign: 'middle' }}>
-														{displayName.charAt(0)}
-													</Avatar>
-												</React.Fragment>
-											}
-										>
-											{choice.subItem.map(item => {
-												return <Item key={item.text}>{item.text}</Item>;
-											})}
-										</SubMenu>
-									);
-								} else {
-									return (
-										<SubMenu
-											key={choice.text}
-											title={
-												<div style={{ marginLeft: 0, marginRight: 15 }}>
-													<Avatar style={{ verticalAlign: 'middle' }}>
-														{displayName.charAt(0)}
-													</Avatar>
-													&nbsp; {displayName}
-												</div>
-											}
-										>
-											{choice.subItem.map(item => {
-												return <Item key={item.text}>{item.text}</Item>;
-											})}
-										</SubMenu>
-									);
-								}
 							} else {
-								return null;
+								return (
+									<Item
+										key={choice.text}
+										className={choice.className}
+										onClick={this.logout}
+									>
+										Sign out
+									</Item>
+								);
 							}
 						})}
 					</Menu>

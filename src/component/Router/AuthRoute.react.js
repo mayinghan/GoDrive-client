@@ -111,24 +111,29 @@ class AuthRoute extends React.Component {
 				className: rightNavbarClass,
 				hide: isAuth
 			},
+			// {
+			// 	text: 'usercenter',
+			// 	hide: !isAuth,
+			// 	className: rightNavbarClass,
+			// 	subItem: [
+			// 		{
+			// 			path: '/edit-profile',
+			// 			text: 'Edit Profile'
+			// 			//component: EditProfile
+			// 		},
+			// 		{
+			// 			path: '/change-password',
+			// 			text: 'Change Password'
+			// 		},
+			// 		{
+			// 			text: 'Sign out'
+			// 		}
+			// 	]
+			// },
 			{
-				text: 'usercenter',
+				text: 'Sign out',
 				hide: !isAuth,
-				className: rightNavbarClass,
-				subItem: [
-					{
-						path: '/edit-profile',
-						text: 'Edit Profile'
-						//component: EditProfile
-					},
-					{
-						path: '/change-password',
-						text: 'Change Password'
-					},
-					{
-						text: 'Sign out'
-					}
-				]
+				className: rightNavbarClass
 			}
 		];
 
