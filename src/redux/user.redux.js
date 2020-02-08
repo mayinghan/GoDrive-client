@@ -18,7 +18,7 @@ const initState = {
 export function userRedux(state = initState, action) {
 	switch (action.type) {
 		case LOAD_DATA:
-			return { ...state, ...action.payload, isAuth: true };
+			return { ...state, ...action.payload, isAuth: true, redirectTo: '/' };
 		case AUTH_SUCC:
 			return {
 				...state,
@@ -48,7 +48,7 @@ function errorMsg(msg) {
 }
 
 export function loadData(userinfo) {
-	return { type: LOAD_DATA, payload: userinfo };
+	return { type: LOAD_DATA, payload: userinfo, redirectTo: '/' };
 }
 
 export function logoutRedux() {
@@ -74,6 +74,7 @@ export function login({ input, password }) {
 			})
 			.catch(err => {
 				console.log(err.response.data);
+				message.error(err.response.data.msg);
 			});
 	};
 }
@@ -100,6 +101,7 @@ export function register(userInput) {
 			})
 			.catch(err => {
 				console.log(err.response.data);
+				message.error(err.response.data.msg);
 			});
 	};
 }

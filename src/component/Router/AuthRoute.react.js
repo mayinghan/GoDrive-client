@@ -72,8 +72,9 @@ class AuthRoute extends React.Component {
 			loading: true
 		};
 
-		const publicList = ['/login', '/register'];
-		const pathname = this.props.location.pathname;
+		// const publicList = ['/login', '/register'];
+		// const pathname = this.props.location.pathname;
+
 		axios
 			.get('/api/user/info')
 			.then(res => {
@@ -92,7 +93,7 @@ class AuthRoute extends React.Component {
 				}
 			})
 			.catch(err => {
-				console.lof(err.resonse.data);
+				console.log(err.resonse);
 				this.setState({ loading: false });
 			});
 	}
@@ -100,7 +101,7 @@ class AuthRoute extends React.Component {
 	render() {
 		const isAuth = this.props.user.isAuth;
 		const rightNavbarClass = 'navbar-right';
-		console.log(this.state.loading);
+		// console.log(this.state.loading);
 		const navList = [
 			{
 				path: '/',

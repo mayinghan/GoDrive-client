@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Form, Input, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { login } from '../../redux/user.redux';
@@ -44,41 +44,45 @@ export const LoginForm = () => {
 	const onFailed = ({ errorFields }) => {
 		form.scrollToField(errorFields[0].name);
 	};
-
+	console.log(userState);
 	return (
 		<div>
 			{userState.redirectTo ? (
 				<Redirect to={userState.redirectTo}></Redirect>
-			) : null}
-			<Form
-				{...layout}
-				name='login'
-				form={form}
-				onFinish={onSubmit}
-				onFinishFailed={onFailed}
-			>
-				<Item
-					label='Username/Email'
-					name='input'
-					rules={[
-						{ required: true, message: 'Please input your username or email!' }
-					]}
+			) : (
+				<Form
+					{...layout}
+					name='login'
+					form={form}
+					onFinish={onSubmit}
+					onFinishFailed={onFailed}
 				>
-					<Input />
-				</Item>
-				<Item
-					label='Password'
-					name='password'
-					rules={[{ required: true, message: 'Please input your password' }]}
-				>
-					<Input.Password></Input.Password>
-				</Item>
-				<Item {...tailFormItemLayout}>
-					<Button type='primary' htmlType='submit'>
-						Log in
-					</Button>
-				</Item>
-			</Form>
+					<Item
+						label='Username/Email'
+						name='input'
+						rules={[
+							{
+								required: true,
+								message: 'Please input your username or email!'
+							}
+						]}
+					>
+						<Input />
+					</Item>
+					<Item
+						label='Password'
+						name='password'
+						rules={[{ required: true, message: 'Please input your password' }]}
+					>
+						<Input.Password></Input.Password>
+					</Item>
+					<Item {...tailFormItemLayout}>
+						<Button type='primary' htmlType='submit'>
+							Log in
+						</Button>
+					</Item>
+				</Form>
+			)}
 		</div>
 	);
 };
