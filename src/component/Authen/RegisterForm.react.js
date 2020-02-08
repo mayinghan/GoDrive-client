@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Form, Input, Button, Row, Col, Tooltip, message } from 'antd';
 import Axios from 'axios';
+import { register } from '../../redux/user.redux';
+import { Redirect } from 'react-router-dom';
+
 const { Item } = Form;
 
 const layout = {
@@ -28,7 +31,7 @@ const tailFormItemLayout = {
 	}
 };
 
-const EMAIL_COOL_DOWN = 90;
+const EMAIL_COOL_DOWN = 20;
 
 export const RegisterForm = () => {
 	const [form] = Form.useForm();
@@ -64,7 +67,7 @@ export const RegisterForm = () => {
 
 	const onSubmit = v => {
 		// handle submit
-		console.log(v);
+		dispatch(register(v));
 	};
 
 	const onFailed = ({ errorFields }) => {
@@ -118,96 +121,101 @@ export const RegisterForm = () => {
 	};
 
 	return (
-		<Form
-			{...layout}
-			form={form}
-			name='register'
-			onFinish={onSubmit}
-			onFinishFailed={onFailed}
-		>
-			<Item
-				label='Username'
-				name='username'
-				rules={[{ required: true, message: 'Please input your username' }]}
+		<div>
+			{userState.redirectTo ? (
+				<Redirect to={userState.redirectTo}></Redirect>
+			) : null}
+			<Form
+				{...layout}
+				form={form}
+				name='register'
+				onFinish={onSubmit}
+				onFinishFailed={onFailed}
 			>
-				<Input />
-			</Item>
-			<Item
-				label='E-mail'
-				name='email'
-				rules={[
-					{ required: true, message: 'Please input your E-mail' },
-					{ validator: emailValidator }
-				]}
-			>
-				<Input onChange={e => handleEmailInput(e)} />
-			</Item>
-			<Item
-				label='Password'
-				name='password'
-				rules={[{ required: true, message: 'Please input your password' }]}
-				hasFeedback
-			>
-				<Input.Password />
-			</Item>
-			<Item
-				name='confirm'
-				label='Confirm Password'
-				dependencies={['password']}
-				rules={[
-					{
-						required: true,
-						message: 'Please confirm your password'
-					},
-					confirmPassword(form)
-				]}
-				hasFeedback
-			>
-				<Input.Password />
-			</Item>
-			<Item label='Code' rules={[{ required: true }]}>
-				<Row gutter={8}>
-					<Col span={16}>
-						<Item
-							name='code'
-							noStyle
-							rules={[
-								{
-									required: true,
-									message: 'Please input the email verification code you got!'
-								}
-							]}
-						>
-							<Input />
-						</Item>
-					</Col>
-					<Col span={6}>
-						{validEmail ? (
-							<Tooltip title='Click to get the verification code in your email'>
-								<Button
-									disabled={!validEmail || buttonLoading.loading}
-									onClick={sendEmail}
-								>
-									{buttonLoading.loading
-										? buttonLoading.time + 's'
-										: 'Get Code'}
-								</Button>
-							</Tooltip>
-						) : (
-							<Tooltip title='Enter a valid email address and get a verification code'>
-								<Button disabled={!validEmail} onClick={sendEmail}>
-									Get Code
-								</Button>
-							</Tooltip>
-						)}
-					</Col>
-				</Row>
-			</Item>
-			<Item {...tailFormItemLayout}>
-				<Button type='primary' htmlType='submit'>
-					Register
-				</Button>
-			</Item>
-		</Form>
+				<Item
+					label='Username'
+					name='username'
+					rules={[{ required: true, message: 'Please input your username' }]}
+				>
+					<Input />
+				</Item>
+				<Item
+					label='E-mail'
+					name='email'
+					rules={[
+						{ required: true, message: 'Please input your E-mail' },
+						{ validator: emailValidator }
+					]}
+				>
+					<Input onChange={e => handleEmailInput(e)} />
+				</Item>
+				<Item
+					label='Password'
+					name='password'
+					rules={[{ required: true, message: 'Please input your password' }]}
+					hasFeedback
+				>
+					<Input.Password />
+				</Item>
+				<Item
+					name='confirm'
+					label='Confirm Password'
+					dependencies={['password']}
+					rules={[
+						{
+							required: true,
+							message: 'Please confirm your password'
+						},
+						confirmPassword(form)
+					]}
+					hasFeedback
+				>
+					<Input.Password />
+				</Item>
+				<Item label='Code' rules={[{ required: true }]}>
+					<Row gutter={8}>
+						<Col span={16}>
+							<Item
+								name='code'
+								noStyle
+								rules={[
+									{
+										required: true,
+										message: 'Please input the email verification code you got!'
+									}
+								]}
+							>
+								<Input />
+							</Item>
+						</Col>
+						<Col span={6}>
+							{validEmail ? (
+								<Tooltip title='Click to get the verification code in your email'>
+									<Button
+										disabled={!validEmail || buttonLoading.loading}
+										onClick={sendEmail}
+									>
+										{buttonLoading.loading
+											? buttonLoading.time + 's'
+											: 'Get Code'}
+									</Button>
+								</Tooltip>
+							) : (
+								<Tooltip title='Enter a valid email address and get a verification code'>
+									<Button disabled={!validEmail} onClick={sendEmail}>
+										Get Code
+									</Button>
+								</Tooltip>
+							)}
+						</Col>
+					</Row>
+				</Item>
+				<Item {...tailFormItemLayout}>
+					<Button type='primary' htmlType='submit'>
+						Register
+					</Button>
+				</Item>
+			</Form>
+		</div>
 	);
 };

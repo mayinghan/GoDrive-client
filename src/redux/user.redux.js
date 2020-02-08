@@ -75,20 +75,26 @@ export function login({ input, pwd }) {
 
 export function register(userInput) {
 	console.log(userInput);
-	const { email, pwd, confirm, username } = userInput;
-	if (!email || !pwd || pwd !== confirm || !username) {
+	const { email, password, confirm, username } = userInput;
+	if (!email || !password || password !== confirm || !username) {
 		return errorMsg('missing fields!');
 	}
 
-	const registerInfo = { ...userInput };
+	const registerInfo = { ...userInput, email: email.toLowerCase() };
 
 	return dispatch => {
-		axios.post('/api/user/register', registerInfo).then(res => {
-			if (res.status === 200 && res.data.code === 0) {
-				dispatch(authSuccess(res.data.data));
-			} else {
-				dispatch(errorMsg(res.data.msg));
-			}
-		});
+		axios
+			.post('/api/user/signup', registerInfo)
+			.then(res => {
+				if (res.status === 200 && res.data.code === 0) {
+					console.log(res.data);
+					dispatch(authSuccess(res.data.data));
+				} else {
+					dispatch(errorMsg(res.data.msg));
+				}
+			})
+			.catch(err => {
+				console.log(err.response.data);
+			});
 	};
 }
