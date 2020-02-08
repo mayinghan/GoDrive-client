@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Row, Col, Tooltip } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Form, Input, Button, Row, Col, Tooltip, message } from 'antd';
+import Axios from 'axios';
 const { Item } = Form;
 
 const layout = {
@@ -26,9 +28,39 @@ const tailFormItemLayout = {
 	}
 };
 
+const EMAIL_COOL_DOWN = 90;
+
 export const RegisterForm = () => {
 	const [form] = Form.useForm();
 	const [validEmail, setValidEmail] = useState(false);
+	const [buttonLoading, setButtonLoading] = useState({
+		loading: false,
+		time: EMAIL_COOL_DOWN
+	});
+
+	useEffect(() => {
+		let interval;
+		// start counting down
+		if (buttonLoading.loading) {
+			interval = setInterval(() => {
+				setButtonLoading(pre => {
+					if (pre.time <= 0) {
+						clearInterval(interval);
+						return { loading: false, time: EMAIL_COOL_DOWN };
+					} else {
+						return { ...buttonLoading, time: pre.time - 1 };
+					}
+				});
+			}, 1000);
+		}
+
+		return () => clearInterval(interval);
+	}, [buttonLoading.loading]);
+
+	// 注册redux state
+	const userState = useSelector(state => state.user);
+	// 注册 dispatch行为
+	const dispatch = useDispatch();
 
 	const onSubmit = v => {
 		// handle submit
@@ -60,8 +92,20 @@ export const RegisterForm = () => {
 	};
 
 	const sendEmail = () => {
-		const email = form.getFieldValue('email');
-		console.log(email);
+		const email = form.getFieldValue('email').toLowerCase();
+
+		Axios.get(`/api/user/verify?email=${email}`)
+			.then(res => {
+				if (res.status === 200) {
+					console.log('send code successfully');
+					message.success('Sent code successfully, please check your email!');
+					// start button count donw 90s
+					setButtonLoading({ ...buttonLoading, loading: true });
+				}
+			})
+			.catch(err => {
+				message.error(err.response.data.msg);
+			});
 	};
 
 	const handleEmailInput = e => {
@@ -138,14 +182,24 @@ export const RegisterForm = () => {
 						</Item>
 					</Col>
 					<Col span={6}>
-						<Tooltip
-							visible={!validEmail}
-							title='Enter a valid email address and get a verification code'
-						>
-							<Button disabled={!validEmail} onClick={sendEmail}>
-								Get Code
-							</Button>
-						</Tooltip>
+						{validEmail ? (
+							<Tooltip title='Click to get the verification code in your email'>
+								<Button
+									disabled={!validEmail || buttonLoading.loading}
+									onClick={sendEmail}
+								>
+									{buttonLoading.loading
+										? buttonLoading.time + 's'
+										: 'Get Code'}
+								</Button>
+							</Tooltip>
+						) : (
+							<Tooltip title='Enter a valid email address and get a verification code'>
+								<Button disabled={!validEmail} onClick={sendEmail}>
+									Get Code
+								</Button>
+							</Tooltip>
+						)}
 					</Col>
 				</Row>
 			</Item>
