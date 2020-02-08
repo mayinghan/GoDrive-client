@@ -58,7 +58,7 @@ export const RegisterForm = () => {
 		}
 
 		return () => clearInterval(interval);
-	}, [buttonLoading.loading]);
+	}, [buttonLoading, buttonLoading.loading]);
 
 	// 注册redux state
 	const userState = useSelector(state => state.user);

@@ -55,21 +55,26 @@ export function logoutRedux() {
 	return { type: LOGOUT };
 }
 
-export function login({ input, pwd }) {
+export function login({ input, password }) {
 	// console.log(input, pwd);
-	if (!input || !pwd) {
+	if (!input || !password) {
 		return errorMsg('missing fields!');
 	}
 
 	return dispatch => {
-		return axios.post('/api/user/login', { input, pwd }).then(res => {
-			if (res.status === 200 && res.data.code === 0) {
-				dispatch(authSuccess(res.data.data));
-			} else {
-				dispatch(errorMsg(res.data.msg));
-				throw new Error('Failed to authenticate this user!');
-			}
-		});
+		return axios
+			.post('/api/user/login', { input, password })
+			.then(res => {
+				if (res.status === 200 && res.data.code === 0) {
+					dispatch(authSuccess(res.data.data));
+				} else {
+					dispatch(errorMsg(res.data.msg));
+					throw new Error('Failed to authenticate this user!');
+				}
+			})
+			.catch(err => {
+				console.log(err.response.data);
+			});
 	};
 }
 

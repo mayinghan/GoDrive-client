@@ -68,26 +68,39 @@ class AuthRoute extends React.Component {
 		super(props);
 		console.log('checking if logged');
 
-		/*		const publicList = ['/login', '/register'];
+		this.state = {
+			loading: true
+		};
+
+		const publicList = ['/login', '/register'];
 		const pathname = this.props.location.pathname;
-		if (publicList.indexOf(pathname) === -1) {
-			axios.get('/api/user/info').then(res => {
+		axios
+			.get('/api/user/info')
+			.then(res => {
 				if (res.status === 200) {
+					console.log(res.data);
 					if (res.data.code === 0) {
 						this.props.loadData(res.data.data);
+						this.setState({ loading: false });
 					} else {
 						console.log('going to login');
 						this.props.history.push('/login');
+						this.setState({ loading: false });
 					}
+				} else {
+					this.setState({ loading: false });
 				}
+			})
+			.catch(err => {
+				console.lof(err.resonse.data);
+				this.setState({ loading: false });
 			});
-        }
-        */
 	}
 
 	render() {
 		const isAuth = this.props.user.isAuth;
 		const rightNavbarClass = 'navbar-right';
+		console.log(this.state.loading);
 		const navList = [
 			{
 				path: '/',
@@ -101,7 +114,7 @@ class AuthRoute extends React.Component {
 				text: 'Register',
 				component: Register,
 				className: rightNavbarClass,
-				hide: isAuth
+				hide: isAuth || this.state.loading
 			},
 
 			{
@@ -109,7 +122,7 @@ class AuthRoute extends React.Component {
 				text: 'Login',
 				component: Login,
 				className: rightNavbarClass,
-				hide: isAuth
+				hide: isAuth || this.state.loading
 			},
 			// {
 			// 	text: 'usercenter',
@@ -132,7 +145,7 @@ class AuthRoute extends React.Component {
 			// },
 			{
 				text: 'Sign out',
-				hide: !isAuth,
+				hide: !isAuth || this.state.loading,
 				className: rightNavbarClass
 			}
 		];

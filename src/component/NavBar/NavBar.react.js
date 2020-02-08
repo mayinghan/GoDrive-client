@@ -28,24 +28,24 @@ class NavBar extends React.Component {
 		super(props);
 		this.state = {
 			modalVisible: false,
-			screenWidth: window.innerWidth,
 			location: this.props.location.pathname
 		};
 	}
 
-	logout() {
+	logout = () => {
 		console.log('logout');
 		this.setState({
+			...this.state,
 			modalVisible: true
 		});
-	}
+	};
 
 	handleOk = e => {
 		this.setState({
 			modalVisible: false
 		});
 
-		browserCookie.erase('userid');
+		browserCookie.erase('token');
 		this.props.history.push('/login');
 		this.props.logoutRedux();
 	};
@@ -66,7 +66,6 @@ class NavBar extends React.Component {
 			console.log(currItem);
 		}
 		const list = this.props.data.filter(v => !v.hide);
-		const displayName = this.props.user.displayName;
 
 		return (
 			<React.Fragment>
