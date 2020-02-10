@@ -31,7 +31,7 @@ const tailFormItemLayout = {
 	}
 };
 
-const EMAIL_COOL_DOWN = 20;
+const EMAIL_COOL_DOWN = 100;
 
 export const RegisterForm = () => {
 	const [form] = Form.useForm();
@@ -96,18 +96,18 @@ export const RegisterForm = () => {
 
 	const sendEmail = () => {
 		const email = form.getFieldValue('email').toLowerCase();
-
+		// start button count donw 90s
+		setButtonLoading({ ...buttonLoading, loading: true });
 		Axios.get(`/api/user/verify?email=${email}`)
 			.then(res => {
 				if (res.status === 200) {
 					console.log('send code successfully');
 					message.success('Sent code successfully, please check your email!');
-					// start button count donw 90s
-					setButtonLoading({ ...buttonLoading, loading: true });
 				}
 			})
 			.catch(err => {
 				message.error(err.response.data.msg);
+				setButtonLoading({ ...buttonLoading, loading: false });
 			});
 	};
 
