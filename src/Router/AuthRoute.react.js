@@ -1,13 +1,14 @@
 import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
-import { loadData } from '../../redux/user.redux';
+import { loadData } from '../redux/user.redux';
 import { connect } from 'react-redux';
-import NavBar from '../NavBar/NavBar.react';
+import NavBar from '../component/NavBar/NavBar.react';
 import { Route, Switch } from 'react-router-dom';
-import { Login } from '../../container/Authen/Login.react';
-import { Register } from '../../container/Authen/Register.react';
-import { FileUpload } from '../../container/FileContainer/FileUpload.react';
+import PrivateRoute from './PrivateRoute.react';
+import { Login } from '../container/Authen/Login.react';
+import { Register } from '../container/Authen/Register.react';
+import { FileUpload } from '../container/FileContainer/FileUpload.react';
 
 function Home() {
 	return <h2 style={{ textAlign: 'center' }}>GoDrive Homepage</h2>;
@@ -17,7 +18,7 @@ function NoMatch() {
 	return <h2>404 Not Found</h2>;
 }
 
-const navListRouting = navList => {
+const navListRouting = (navList, isAuth) => {
 	const routers = [];
 	navList.forEach(op => {
 		if (op.text === 'GoDrive') {
@@ -29,34 +30,25 @@ const navListRouting = navList => {
 					component={op.component}
 				></Route>
 			);
-		} else if (op.text === 'My Files') {
-			const sublist = op.subItem;
-			sublist.forEach(it => {
+		} else if (op.text !== 'Sign out') {
+			if (op.auth) {
 				routers.push(
-					<Route key={it.text} path={it.path} component={it.component}></Route>
+					<PrivateRoute
+						key={op.text}
+						path={op.path}
+						component={op.component}
+						isAuth={isAuth}
+					></PrivateRoute>
 				);
-			});
-		} else if (op.text === 'usercenter') {
-			op.subItem.forEach(it => {
-				if (it.text !== 'Sign out') {
-					console.log(it.path);
-					routers.push(
-						<Route
-							key={it.text}
-							path={it.path}
-							component={it.component}
-						></Route>
-					);
-				}
-			});
-		} else {
-			routers.push(
-				<Route key={op.text} path={op.path} component={op.component}></Route>
-			);
+			} else {
+				routers.push(
+					<Route key={op.text} path={op.path} component={op.component}></Route>
+				);
+			}
 		}
 	});
 
-	routers.push(<Route key='home' component={Home}></Route>);
+	routers.push(<Route key='404' component={NoMatch}></Route>);
 	console.log(routers);
 	return routers;
 };
@@ -72,9 +64,6 @@ class AuthRoute extends React.Component {
 			loading: true
 		};
 
-		// const publicList = ['/login', '/register'];
-		// const pathname = this.props.location.pathname;
-
 		axios
 			.get('/api/user/info')
 			.then(res => {
@@ -85,7 +74,7 @@ class AuthRoute extends React.Component {
 						this.setState({ loading: false });
 					} else {
 						console.log('going to login');
-						this.props.history.push('/login');
+						// this.props.history.push('/login');
 						this.setState({ loading: false });
 					}
 				} else {
@@ -106,15 +95,24 @@ class AuthRoute extends React.Component {
 			{
 				path: '/',
 				text: 'GoDrive',
-				component: FileUpload,
+				component: Home,
 				className: 'navbar-title',
+				auth: false,
 				hide: false
+			},
+			{
+				path: '/upload',
+				text: 'Upload',
+				component: FileUpload,
+				auth: true,
+				hide: !isAuth || this.state.loading
 			},
 			{
 				path: '/register',
 				text: 'Register',
 				component: Register,
 				className: rightNavbarClass,
+				auth: false,
 				hide: isAuth || this.state.loading
 			},
 
@@ -123,30 +121,13 @@ class AuthRoute extends React.Component {
 				text: 'Login',
 				component: Login,
 				className: rightNavbarClass,
+				auth: false,
 				hide: isAuth || this.state.loading
 			},
-			// {
-			// 	text: 'usercenter',
-			// 	hide: !isAuth,
-			// 	className: rightNavbarClass,
-			// 	subItem: [
-			// 		{
-			// 			path: '/edit-profile',
-			// 			text: 'Edit Profile'
-			// 			//component: EditProfile
-			// 		},
-			// 		{
-			// 			path: '/change-password',
-			// 			text: 'Change Password'
-			// 		},
-			// 		{
-			// 			text: 'Sign out'
-			// 		}
-			// 	]
-			// },
 			{
 				text: 'Sign out',
 				hide: !isAuth || this.state.loading,
+				auth: true,
 				className: rightNavbarClass
 			}
 		];
@@ -155,7 +136,7 @@ class AuthRoute extends React.Component {
 		return (
 			<div>
 				<NavBar data={navList}></NavBar>
-				<Switch>{navListRouting(navList)}</Switch>
+				<Switch>{navListRouting(navList, isAuth)}</Switch>
 			</div>
 		);
 	}
