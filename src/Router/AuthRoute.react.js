@@ -9,10 +9,7 @@ import PrivateRoute from './PrivateRoute.react';
 import { Login } from '../container/Authen/Login.react';
 import { Register } from '../container/Authen/Register.react';
 import { FileUpload } from '../container/FileContainer/FileUpload.react';
-
-function Home() {
-	return <h2 style={{ textAlign: 'center' }}>GoDrive Homepage</h2>;
-}
+import { Home } from '../container/Home/Home.react';
 
 function NoMatch() {
 	return <h2>404 Not Found</h2>;
