@@ -63,7 +63,6 @@ class NavBar extends React.Component {
 				this.props.data,
 				v => v.path === this.props.location.pathname
 			);
-			console.log(currItem);
 		}
 		const list = this.props.data.filter(v => !v.hide);
 

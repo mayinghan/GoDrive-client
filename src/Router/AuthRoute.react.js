@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
-import { loadData } from '../redux/user.redux';
+import { loadData, noUser } from '../redux/user.redux';
 import { connect } from 'react-redux';
 import NavBar from '../component/NavBar/NavBar.react';
 import { Route, Switch } from 'react-router-dom';
@@ -46,12 +46,11 @@ const navListRouting = (navList, isAuth) => {
 	});
 
 	routers.push(<Route key='404' component={NoMatch}></Route>);
-	console.log(routers);
 	return routers;
 };
 
 @withRouter
-@connect(state => state, { loadData })
+@connect(state => state, { loadData, noUser })
 class AuthRoute extends React.Component {
 	constructor(props) {
 		super(props);
@@ -70,8 +69,14 @@ class AuthRoute extends React.Component {
 						this.props.loadData(res.data.data);
 						this.setState({ loading: false });
 					} else {
-						console.log('going to login');
-						// this.props.history.push('/login');
+						this.props.noUser();
+						const publicPath = ['/', '/login', '/register'];
+						if (publicPath.indexOf(this.props.location.pathname) === -1) {
+							console.log(this.props.history.location);
+							console.log('going to login');
+							this.props.history.push('/login');
+						}
+
 						this.setState({ loading: false });
 					}
 				} else {

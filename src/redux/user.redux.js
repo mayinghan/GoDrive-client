@@ -4,19 +4,21 @@ import { message } from 'antd';
 const LOAD_DATA = 'LOAD_DATA';
 const AUTH_SUCC = 'AUTH_SUCC';
 const LOGOUT = 'LOGOUT';
+const NO_USER = 'NO_USER';
 const ERROR_MSG = 'ERROR_MSG';
 
 // init state
 const initState = {
 	redirectTo: '',
 	msg: '',
-	username: '',
-	isAuth: false
+	username: ''
 };
 
 //reducer
 export function userRedux(state = initState, action) {
 	switch (action.type) {
+		case NO_USER:
+			return { ...state, isAuth: false };
 		case LOAD_DATA:
 			return { ...state, ...action.payload, isAuth: true, redirectTo: '/' };
 		case AUTH_SUCC:
@@ -30,7 +32,7 @@ export function userRedux(state = initState, action) {
 		case ERROR_MSG:
 			return { ...state, isAuth: false, msg: action.msg };
 		case LOGOUT:
-			return { ...initState };
+			return { ...initState, isAuth: false };
 		default:
 			return state;
 	}
@@ -49,6 +51,10 @@ function errorMsg(msg) {
 
 export function loadData(userinfo) {
 	return { type: LOAD_DATA, payload: userinfo, redirectTo: '/' };
+}
+
+export function noUser() {
+	return { type: NO_USER };
 }
 
 export function logoutRedux() {
