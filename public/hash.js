@@ -1,8 +1,7 @@
 /**
  * A script for web-worker to hash a file
  */
-const Path = require('path');
-self.importScripts(path.resolve('../../public/spark-md5.min.js'));
+self.importScripts('spark-md5.min.js');
 
 // generate file hash
 self.onmessage = e => {
