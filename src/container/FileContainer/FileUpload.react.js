@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { Upload, message, Button } from 'antd';
+import { useSelector } from 'react-redux';
+import { Upload, Button } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
+import FileUploader from '../../utils/fileUploader';
 
 const { Dragger } = Upload;
-
-const CHUNK_SIZE = 2 * 1024 * 1024;
 
 // const props = {
 // 	name: 'file',
@@ -29,21 +28,13 @@ const CHUNK_SIZE = 2 * 1024 * 1024;
 export const FileUpload = () => {
 	const [fileList, setFileList] = useState([]);
 	const [uploading, setUploading] = useState(false);
-
-	const createFileChunk = (file, size = CHUNK_SIZE) => {
-		const chunks = [];
-		let cur = 0;
-		console.log(file.size);
-		while (cur < file.size) {
-			chunks.push({ file: file.slice(cur, cur + size) });
-			cur += size;
-		}
-		return chunks;
-	};
+	const user = useSelector(state => state.user);
 
 	const handleUpload = () => {
-		const chunksList = fileList.map(f => createFileChunk(f));
-		console.log(chunksList);
+		fileList.forEach(f => {
+			const fu = new FileUploader(user.username, f);
+			fu.upload();
+		});
 	};
 
 	const props = {
@@ -55,7 +46,6 @@ export const FileUpload = () => {
 		},
 		beforeUpload: file => {
 			setFileList([...fileList, file]);
-			console.log(fileList);
 			return false;
 		},
 		fileList

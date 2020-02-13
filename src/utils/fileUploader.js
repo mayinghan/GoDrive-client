@@ -11,6 +11,7 @@ const STATUS = {
 
 class FileUploader {
 	constructor(username, file) {
+		console.log(file.name);
 		this.username = username;
 		this.chunks = null;
 		this.file = file;
@@ -18,66 +19,72 @@ class FileUploader {
 		this.hash = null;
 		this.worker = null;
 		this.uploadPercentage = 0;
+
+		this.uploadId = username + '-' + new Date().getTime() + '-' + file.name;
 	}
 
-	async handleUpload() {
+	async upload() {
+		console.log(this.uploadId);
 		if (!this.file) {
 			console.log('No file detected');
 			return;
 		}
 		this.status = STATUS.uploading;
-		const fileChunkList = this.createChunks(this.file);
-		this.hash = await this.calculateHash(fileChunkList);
+		const fileChunkList = this._createChunks(this.file);
+		this.hash = await this._calculateHash(fileChunkList);
 
-		const { shouldUpload, uploadedList } = await this.verifyUpload(
-			this.file.name,
-			this.hash
-		);
+		// const { shouldUpload, uploadedList } = await this._verifyUpload(
+		// 	this.file.name,
+		// 	this.hash
+		// );
 
-		if (!shouldUpload) {
-			console.log('instant upload success');
-			message.success('instant upload successfully');
-			this.status = STATUS.wait;
-			return;
-		}
+		// if (!shouldUpload) {
+		// 	console.log('instant upload success');
+		// 	message.success('instant upload successfully');
+		// 	this.status = STATUS.wait;
+		// 	return;
+		// }
 
+		const uploadedList = [];
 		this.chunks = fileChunkList.map(({ file }, index) => ({
 			fileHash: this.hash,
 			index,
-			hash: this.hash + '_' + index,
+			chunkId: this.hash + '_' + index,
 			chunk: file,
 			size: file.size,
 			percentage: uploadedList.includes(index) ? 100 : 0
 		}));
 
-		await this.uploadChunks(uploadedList);
+		await this._uploadChunks(uploadedList);
 	}
 
-	async uploadChunks(uploadedList) {
+	async _uploadChunks(uploadedList) {
 		const list = this.chunks
 			.filter(c => uploadedList.indexOf(c.hash) == -1)
-			.map(({ chunk, hash, index }, i) => {
+			.map(({ chunk, chunkId, index }, i) => {
 				const form = new FormData();
 				form.append('chunk', chunk);
-				form.append('hash', hash);
+				form.append('uploadId', this.uploadId);
+				form.append('chunkId', chunkId);
 				form.append('filename', this.file.name);
 				form.append('filehash', this.hash);
 				return { form, index };
 			});
 		// send requests with concurrency control
+		console.log(list);
 		try {
-			await this.sendRequest(list, 4);
+			await this._sendRequest(list, 4);
 
-			if (list.length + uploadedList.length === chunks.length) {
+			if (list.length + uploadedList.length === this.chunks.length) {
 				// inform the server to merge files
-				await this.sendMergeRequest(username, filename);
+				//await this._sendMergeRequest(this.username, this.filename);
 			}
 		} catch (err) {
 			console.error(err.stack);
 		}
 	}
 
-	createChunks(file, size = SIZE) {
+	_createChunks(file, size = SIZE) {
 		const chunks = [];
 		let cur = 0;
 		while (cur < file.size) {
@@ -89,7 +96,7 @@ class FileUploader {
 	}
 
 	request({ url, data, headers = {}, onProgress = e => e }) {
-		return new Promise(res => {
+		return new Promise(resolve => {
 			const xhr = new XMLHttpRequest();
 			xhr.upload.onprogress = onProgress;
 			xhr.open('post', url);
@@ -102,11 +109,11 @@ class FileUploader {
 	}
 
 	// calculate hash
-	calculateHash(fileChunkList) {
+	_calculateHash(fileChunkList) {
 		return new Promise((resolve, reject) => {
-			this.worker = new Worker('./hash.js');
-			worker.postMessage({ fileChunkList });
-			worker.onmessage = e => {
+			this.worker = new Worker('/hash.js');
+			this.worker.postMessage({ fileChunkList });
+			this.worker.onmessage = e => {
 				const { percentage, hash } = e.data;
 				if (hash) {
 					resolve(hash);
@@ -116,7 +123,7 @@ class FileUploader {
 	}
 
 	// send request with max concurrency (4 by default)
-	async sendRequest(requestList, max = 4) {
+	async _sendRequest(requestList, max = 4) {
 		return new Promise((resolve, reject) => {
 			const len = requestList.length;
 			let idx = 0;
@@ -126,16 +133,21 @@ class FileUploader {
 				while (idx < len && max > 0) {
 					max--; //this request take one channel
 					console.log(idx, ' starts');
-					const form = requestList.form;
+					const form = requestList[idx].form;
 					// use to retry failed requests in the future
-					const chunkIdx = requestList.index;
+					const chunkIdx = requestList[idx].index;
 					idx++;
+					console.log(form);
 					this.request({
 						url: '/api/file/uploadchunk',
 						data: form,
-						onProgress: createProgressHandler(this.chunks[chunkIdx])
+						header: {
+							'content-type': 'multipart/form-data'
+						},
+						onProgress: this._createProgressHandler(this.chunks[chunkIdx])
 					})
-						.then(() => {
+						.then(res => {
+							console.log(res.data);
 							max++; //release the channel
 							counter++;
 							if (counter === len) {
@@ -156,17 +168,16 @@ class FileUploader {
 	}
 
 	// notify the server to merge files
-	async sendMergeRequest() {
-		const uploadId = this.username + new Date().getTime() + this.file.name;
+	async _sendMergeRequest() {
 		await this.request({
 			url: '/api/file/merge',
 			headers: { 'content-type': 'application/json' },
-			data: JSON.stringify({ uploadId: uploadId })
+			data: JSON.stringify({ uploadId: this.uploadId })
 		});
 	}
 
 	// check if file is already uploaded based on hash
-	async verifyUpload(filename, filehash) {
+	async _verifyUpload(filename, filehash) {
 		const { data } = await this.request({
 			url: '/api/file/verify',
 			headers: {
@@ -182,7 +193,7 @@ class FileUploader {
 	}
 
 	// save the progress of handling each chunk
-	createProgressHandler(item) {
+	_createProgressHandler(item) {
 		return e => {
 			item.percentage = parseInt(String((e.loaded / e.total) * 100));
 		};

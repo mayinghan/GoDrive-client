@@ -94,6 +94,15 @@ export const RegisterForm = () => {
 		return Promise.reject('Please enter a valid email address!');
 	};
 
+	const usernameValidator = (rule, value) => {
+		if (!value || (/^[a-zA-Z]+/.test(value) && value.indexOf('@') === -1)) {
+			return Promise.resolve();
+		}
+		return Promise.reject(
+			'Username must start with a letter and does not include special character @'
+		);
+	};
+
 	const sendEmail = () => {
 		const email = form.getFieldValue('email').toLowerCase();
 		// start button count donw 90s
@@ -135,7 +144,10 @@ export const RegisterForm = () => {
 				<Item
 					label='Username'
 					name='username'
-					rules={[{ required: true, message: 'Please input your username' }]}
+					rules={[
+						{ required: true, message: 'Please input your username' },
+						{ validator: usernameValidator }
+					]}
 				>
 					<Input />
 				</Item>
