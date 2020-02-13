@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Upload, Button } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
-import FileUploader from '../../utils/file';
+import FileUploader from '../../utils/fileUploader';
 
 const { Dragger } = Upload;
 
