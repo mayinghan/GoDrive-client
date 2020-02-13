@@ -6,10 +6,12 @@ import { connect } from 'react-redux';
 import NavBar from '../component/NavBar/NavBar.react';
 import { Route, Switch } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute.react';
+import browserCookie from 'browser-cookies';
 import { Login } from '../container/Authen/Login.react';
 import { Register } from '../container/Authen/Register.react';
 import { FileUpload } from '../container/FileContainer/FileUpload.react';
 import { Home } from '../container/Home/Home.react';
+import { message } from 'antd';
 
 function NoMatch() {
 	return <h2>404 Not Found</h2>;
@@ -64,12 +66,17 @@ class AuthRoute extends React.Component {
 			.get('/api/user/info')
 			.then(res => {
 				if (res.status === 200) {
-					console.log(res.data);
 					if (res.data.code === 0) {
+						console.log(res.data.data);
 						this.props.loadData(res.data.data);
 						this.setState({ loading: false });
 					} else {
 						this.props.noUser();
+						if (res.data.code === 2) {
+							// token expires
+							message.warning(res.data.msg);
+							browserCookie.erase('token');
+						}
 						const publicPath = ['/', '/login', '/register'];
 						if (publicPath.indexOf(this.props.location.pathname) === -1) {
 							console.log(this.props.history.location);
@@ -84,7 +91,7 @@ class AuthRoute extends React.Component {
 				}
 			})
 			.catch(err => {
-				console.log(err.resonse);
+				console.log(err);
 				this.setState({ loading: false });
 			});
 	}
