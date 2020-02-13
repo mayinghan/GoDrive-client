@@ -2,8 +2,8 @@ import React from "react";
 import { Row, Col } from "react-bootstrap";
 
 const imageFit = {
-  maxWidth: "100%",
-  maxHeight: "100%",
+  maxWidth: "90%",
+  maxHeight: "90%",
   padding: "30px"
 };
 
@@ -21,26 +21,26 @@ export class Home extends React.Component {
           <p>
             <span style={{ fontSize: "30px" }}>GoDrive</span> ———{" "}
             <span style={{ fontSize: "18px" }}>
-              Better than Google Drive. A safe place for all your files
+              A platform for storage and download files
             </span>
           </p>
         </div>
         <Row>
           <Col xs={4}>
-            <img style={imageFit} src="/src/assets/resumable.jpg" />
+            <img style={imageFit} src={require("../../assets/file.png")} />
             <br />
             <h4>Resumable Upload and Download</h4>
           </Col>
           <Col xs={4}>
-            <img style={imageFit} src="/src/assets/instant.png" />
+            <img style={imageFit} src={require("../../assets/upload.png")} />
             <br />
             <h4>Instant upload for specific files</h4>
           </Col>
           <Col xs={4}>
-            <img style={imageFit} src="/src/assets/space.jpg" />
+            <img style={imageFit} src={require("../../assets/space.png")} />
             <br />
-            <h4>Using file blocks distributed stored</h4>
-            <h4>Every user 200+G space!</h4>
+            <h4>With Distributed storge file blocks</h4>
+            <h4>We can support 200GB space</h4>
           </Col>
         </Row>
       </div>
