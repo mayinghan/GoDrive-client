@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { Upload, Button, Progress, message } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { Upload, Progress, message } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
+import { checkAuth } from '../../redux/user.redux';
 
 const { Dragger } = Upload;
 
@@ -20,7 +21,6 @@ const createChunks = (file, size = SIZE) => {
 
 export const FileUpload = () => {
 	const [fileList, setFileList] = useState([]);
-	const [buttonAvail, setButtonAvail] = useState(false);
 	//	const [uploading, setUploading] = useState(false);
 	const [rawChunkList, setRawChunkList] = useState([]);
 	const [hash, setHash] = useState(0);
@@ -29,13 +29,7 @@ export const FileUpload = () => {
 	const [total, setTotal] = useState(0.0);
 
 	const user = useSelector(state => state.user);
-
-	useEffect(() => {
-		if (fileList.length) {
-			setButtonAvail(true);
-		}
-	}, [fileList]);
-
+	const dispatch = useDispatch();
 	useEffect(() => {
 		if (!fileList[0]) setPercentage(0);
 		else {
@@ -48,7 +42,6 @@ export const FileUpload = () => {
 
 	const createProgressHandler = item => {
 		return e => {
-			console.log(item);
 			item.percentage = parseInt(String((e.loaded / e.total) * 100));
 			setTotal(total + e.loaded);
 		};
@@ -106,12 +99,11 @@ export const FileUpload = () => {
 						onProgress: createProgressHandler(chunks[chunkIdx])
 					})
 						.then(res => {
-							console.log(res.data);
+							// console.log(res.data);
 							max++; //release the channel
 							counter++;
 							if (counter === len) {
 								// finish
-								setButtonAvail(false);
 								message.success('Upload done!');
 								resolve();
 							} else {
@@ -134,8 +126,6 @@ export const FileUpload = () => {
 			// xhr.upload.onprogress = onProgress;
 
 			xhr.upload.addEventListener('progress', e => {
-				console.log(e.loaded);
-				console.log(total);
 				setTotal(prev => prev + e.loaded);
 			});
 			xhr.open('post', url);
@@ -153,7 +143,7 @@ export const FileUpload = () => {
 			worker.postMessage({ fileChunkList });
 			worker.onmessage = e => {
 				const { percentage, hash } = e.data;
-				setHashPct(percentage);
+				setHashPct(percentage.toFixed(2));
 				if (hash) {
 					resolve(hash);
 				}
@@ -168,11 +158,13 @@ export const FileUpload = () => {
 			setFileList(newFileList);
 		},
 		beforeUpload: file => {
+			// check auth
+			dispatch(checkAuth());
 			setHashPct(0.0);
 			setPercentage(0.0);
+			setTotal(0);
 			return new Promise(async (res, rej) => {
 				console.log(file.size);
-
 				// get chunks
 				const fileChunkList = createChunks(file);
 				// calculate hash
@@ -186,8 +178,11 @@ export const FileUpload = () => {
 				setRawChunkList(fileChunkList);
 
 				setFileList([file]);
-				rej();
+				res();
 			});
+		},
+		customRequest: () => {
+			handleUpload();
 		},
 		fileList
 	};
@@ -206,12 +201,9 @@ export const FileUpload = () => {
 					data or other band files
 				</p>
 			</Dragger>
-			Preprocess<Progress type='line' percent={hashPct}></Progress>
+			Preprocess<Progress type='dashboard' percent={hashPct}></Progress>
 			Upload
-			<Progress type='line' percent={percentage}></Progress>
-			<Button disabled={!buttonAvail} type='primary' onClick={handleUpload}>
-				Upload
-			</Button>
+			<Progress type='dashboard' percent={percentage}></Progress>
 		</div>
 	);
 };
