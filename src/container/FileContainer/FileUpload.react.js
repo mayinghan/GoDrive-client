@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Upload, Progress, message } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
-import { checkAuth } from '../../redux/user.redux';
+import { checkAuth } from '#/redux/user.redux';
+import fileutils from '#/utils/files';
 
 const { Dragger } = Upload;
 
@@ -160,9 +161,11 @@ export const FileUpload = () => {
 		beforeUpload: file => {
 			// check auth
 			dispatch(checkAuth());
+			// init
 			setHashPct(0.0);
 			setPercentage(0.0);
 			setTotal(0);
+
 			return new Promise(async (res, rej) => {
 				console.log(file.size);
 				// get chunks
