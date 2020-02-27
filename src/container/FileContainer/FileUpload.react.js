@@ -217,6 +217,7 @@ export const FileUpload = () => {
 					const fileChunkList = createChunks(file);
 					message.loading(`Processing file`, 0);
 					const hash = await calculateHashIncrmtl(fileChunkList);
+					console.log(hash);
 					setHash(hash);
 					message.destroy();
 					message.success('Processing done! Ready to upload', 2);

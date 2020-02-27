@@ -28,7 +28,6 @@ self.onmessage = e => {
 				self.postMessage({
 					percentage
 				});
-
 				// recursing to calculate the next chunk
 				loadNext(count);
 			}

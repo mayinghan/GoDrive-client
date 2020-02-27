@@ -67,7 +67,6 @@ class AuthRoute extends React.Component {
 			.then(res => {
 				if (res.status === 200) {
 					if (res.data.code === 0) {
-						console.log(res.data.data);
 						this.props.loadData(res.data.data);
 						this.setState({ loading: false });
 					} else {
