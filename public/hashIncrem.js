@@ -1,5 +1,6 @@
 /**
  * A script for web-worker to hash a file
+ * This hashing strategy should be used when hashing a large file
  */
 self.importScripts('spark-md5.min.js');
 
