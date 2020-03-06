@@ -72,12 +72,7 @@ export const FileUpload = () => {
 				percentage: uploadedList.includes(index) ? 100 : 0
 			}));
 
-			fileutils.verifyUpload(
-				uploadId,
-				fileList[0].name,
-				hash,
-				rawChunkList.length
-			);
+			fileutils.verifyUpload(fileList[0].name, hash, rawChunkList.length);
 
 			// set the global var chunks. This is used to track the upload percentage
 			chunks = parts;
