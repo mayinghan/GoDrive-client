@@ -6,6 +6,7 @@ const AUTH_SUCC = 'AUTH_SUCC';
 const LOGOUT = 'LOGOUT';
 const NO_USER = 'NO_USER';
 const ERROR_MSG = 'ERROR_MSG';
+const UPDATE_AUTH = 'UPDATE_AUTH';
 
 // init state
 const initState = {
@@ -21,6 +22,8 @@ export function userRedux(state = initState, action) {
 			return { ...state, isAuth: false };
 		case LOAD_DATA:
 			return { ...state, ...action.payload, isAuth: true, redirectTo: '/' };
+		case UPDATE_AUTH:
+			return { isAuth: action.isAuth, ...state };
 		case AUTH_SUCC:
 			return {
 				...state,
@@ -49,6 +52,10 @@ function errorMsg(msg) {
 	return { msg, type: ERROR_MSG };
 }
 
+function updateAuth(auth) {
+	return { type: UPDATE_AUTH, isAuth: auth };
+}
+
 export function loadData(userinfo) {
 	return { type: LOAD_DATA, payload: userinfo, redirectTo: '/' };
 }
@@ -59,6 +66,28 @@ export function noUser() {
 
 export function logoutRedux() {
 	return { type: LOGOUT };
+}
+
+export function checkAuth() {
+	return dispatch => {
+		return axios
+			.get('/api/user/info')
+			.then(res => {
+				if (res.data.code === 0) {
+					dispatch(updateAuth(true));
+				} else if (res.data.code === 2) {
+					dispatch(updateAuth(false));
+					message.warn('Login session expires, please log in again!');
+				} else {
+					dispatch(updateAuth(false));
+					message.warn(res.data.msg);
+				}
+			})
+			.catch(err => {
+				console.log(err.response.data);
+				message.warn(err.response.data.msg);
+			});
+	};
 }
 
 export function login({ input, password }) {
