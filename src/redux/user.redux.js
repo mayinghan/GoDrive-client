@@ -18,26 +18,26 @@ const initState = {
 //reducer
 export function userRedux(state = initState, action) {
 	switch (action.type) {
-		case NO_USER:
-			return { ...state, isAuth: false };
-		case LOAD_DATA:
-			return { ...state, ...action.payload, isAuth: true, redirectTo: '/' };
-		case UPDATE_AUTH:
-			return { isAuth: action.isAuth, ...state };
-		case AUTH_SUCC:
-			return {
-				...state,
-				msg: '',
-				...action.payload,
-				isAuth: true,
-				redirectTo: '/'
-			};
-		case ERROR_MSG:
-			return { ...state, isAuth: false, msg: action.msg };
-		case LOGOUT:
-			return { ...initState, isAuth: false };
-		default:
-			return state;
+	case NO_USER:
+		return { ...state, isAuth: false };
+	case LOAD_DATA:
+		return { ...state, ...action.payload, isAuth: true, redirectTo: '/' };
+	case UPDATE_AUTH:
+		return { isAuth: action.isAuth, ...state };
+	case AUTH_SUCC:
+		return {
+			...state,
+			msg: '',
+			...action.payload,
+			isAuth: true,
+			redirectTo: '/'
+		};
+	case ERROR_MSG:
+		return { ...state, isAuth: false, msg: action.msg };
+	case LOGOUT:
+		return { ...initState, isAuth: false };
+	default:
+		return state;
 	}
 }
 

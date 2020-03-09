@@ -8,25 +8,25 @@ self.importScripts('spark-md5.min.js');
 self.onmessage = e => {
 	const { fileChunkList } = e.data;
 	const spark = new self.SparkMD5.ArrayBuffer();
-	let percentage = 0;
+	let ptg = 0;
 	let count = 0;
 	const loadNext = index => {
 		const reader = new FileReader();
 		reader.readAsArrayBuffer(fileChunkList[index].file);
-		reader.onload = e => {
+		reader.onload = i => {
 			count++;
-			spark.append(e.target.result);
+			spark.append(i.target.result);
 			if (count === fileChunkList.length) {
 				// finish hashing
 				self.postMessage({
-					percentage: 100,
-					hash: spark.end()
+					ptg: 100,
+					wholehash: spark.end()
 				});
 				self.close();
 			} else {
-				percentage += 100 / fileChunkList.length;
+				ptg += 100 / fileChunkList.length;
 				self.postMessage({
-					percentage
+					ptg
 				});
 				// recursing to calculate the next chunk
 				loadNext(count);

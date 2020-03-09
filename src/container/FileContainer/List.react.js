@@ -1,3 +1,5 @@
-import React from "react";
+import React from 'react';
 
-export const List = () => {};
+export const List = () => {
+	<h1>This is a list</h1>;
+};

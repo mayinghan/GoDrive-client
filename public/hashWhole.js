@@ -9,12 +9,12 @@ self.onmessage = async e => {
 	const spark = new self.SparkMD5.ArrayBuffer();
 	const reader = new FileReader();
 	reader.readAsArrayBuffer(file);
-	reader.onload = e => {
-		spark.append(e.target.result);
+	reader.onload = i => {
+		spark.append(i.target.result);
 		const hash = spark.end();
 		self.postMessage({
-			percentage: 100,
-			hash: hash
+			ptg: 100,
+			wholehash: hash
 		});
 	};
 };

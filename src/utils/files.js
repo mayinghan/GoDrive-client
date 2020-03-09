@@ -1,5 +1,4 @@
 import axios from 'axios';
-import message from 'antd';
 
 const utils = {
 	verifyUpload: function(filename, filehash, chunkLength) {

@@ -40,7 +40,7 @@ class NavBar extends React.Component {
 		});
 	};
 
-	handleOk = e => {
+	handleOk = () => {
 		this.setState({
 			modalVisible: false
 		});
@@ -50,7 +50,7 @@ class NavBar extends React.Component {
 		this.props.logoutRedux();
 	};
 
-	handleCancel = e => {
+	handleCancel = () => {
 		this.setState({
 			modalVisible: false
 		});

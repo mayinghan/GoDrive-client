@@ -10,13 +10,13 @@ const THRESHOLD = 10 * 1024 * 1024;
 const SIZE = 2 * 1024 * 1024;
 let chunks = [];
 const createChunks = (file, size = SIZE) => {
-	const chunks = [];
+	const c = [];
 	let cur = 0;
 	while (cur < file.size) {
-		chunks.push({ file: file.slice(cur, cur + size) });
+		c.push({ file: file.slice(cur, cur + size) });
 		cur += size;
 	}
-	return chunks;
+	return c;
 };
 
 export const FileUpload = () => {
@@ -78,7 +78,7 @@ export const FileUpload = () => {
 			chunks = parts;
 			const reqList = parts
 				.filter(c => uploadedList.indexOf(c.hash) === -1)
-				.map(({ chunk, chunkId, index }, i) => {
+				.map(({ chunk, chunkId, index }) => {
 					const form = new FormData();
 					form.append('chunk', chunk);
 					form.append('uploadId', uploadId);
@@ -88,11 +88,11 @@ export const FileUpload = () => {
 					return { form, index };
 				});
 
-			sendRequests(parts, reqList, 4);
+			sendRequests(reqList, 4);
 		}
 	};
 
-	const sendRequests = (parts, requestList, max = 4) => {
+	const sendRequests = (requestList, max = 4) => {
 		return new Promise((resolve, reject) => {
 			const len = requestList.length;
 			let idx = 0;
@@ -120,6 +120,7 @@ export const FileUpload = () => {
 							counter++;
 							if (counter === len) {
 								// finish
+								console.log(res.data);
 								message.success('Upload done!');
 								fileutils.verifyUpload();
 								resolve();
@@ -137,7 +138,7 @@ export const FileUpload = () => {
 		});
 	};
 
-	const request = ({ url, data, headers = {}, onProgress = e => e }) => {
+	const request = ({ url, data, headers = {} }) => {
 		return new Promise(resolve => {
 			const xhr = new XMLHttpRequest();
 			// xhr.upload.onprogress = onProgress;
@@ -156,14 +157,14 @@ export const FileUpload = () => {
 
 	// calculate the hash of the file incrementally
 	const calculateHashIncrmtl = fileChunkList => {
-		return new Promise((resolve, reject) => {
+		return new Promise(resolve => {
 			const worker = new Worker('/hashIncrem.js');
 			worker.postMessage({ fileChunkList });
 			worker.onmessage = e => {
-				const { percentage, hash } = e.data;
-				setHashPct(percentage.toFixed(2));
-				if (hash) {
-					resolve(hash);
+				const { ptg, wholehash } = e.data;
+				setHashPct(ptg.toFixed(2));
+				if (wholehash) {
+					resolve(wholehash);
 				}
 			};
 		});
@@ -171,14 +172,14 @@ export const FileUpload = () => {
 
 	// calculate the hash as a whole
 	const calculateHashWhole = file => {
-		return new Promise((res, rej) => {
+		return new Promise(res => {
 			const worker = new Worker('/hashWhole.js');
 			worker.postMessage({ file });
 			worker.onmessage = e => {
-				const { percentage, hash } = e.data;
-				setHashPct(percentage.toFixed(2));
-				if (hash) {
-					res(hash);
+				const { ptg, wholehash } = e.data;
+				setHashPct(ptg.toFixed(2));
+				if (wholehash) {
+					res(wholehash);
 				}
 			};
 		});
@@ -191,7 +192,7 @@ export const FileUpload = () => {
 			newFileList.splice(idx, 1);
 			setFileList(newFileList);
 		},
-		beforeUpload: file => {
+		beforeUpload: async file => {
 			// check auth
 			dispatch(checkAuth());
 			// init
@@ -199,26 +200,27 @@ export const FileUpload = () => {
 			setPercentage(0.0);
 			setTotal(0);
 
-			return new Promise(async (res, rej) => {
-				console.log(file.size);
-				if (file.size <= THRESHOLD) {
-					console.log('small file detected!');
-					const hash = await calculateHashWhole(file);
-					setHash(hash);
-					console.log(hash);
-				} else {
-					console.log('large file detected');
-					// get chunks
-					const fileChunkList = createChunks(file);
-					message.loading(`Processing file`, 0);
-					const hash = await calculateHashIncrmtl(fileChunkList);
-					console.log(hash);
-					setHash(hash);
-					message.destroy();
-					message.success('Processing done! Ready to upload', 2);
-					setRawChunkList(fileChunkList);
-				}
-				setFileList([file]);
+			console.log(file.size);
+			if (file.size <= THRESHOLD) {
+				console.log('small file detected!');
+				const filehash = await calculateHashWhole(file);
+				setHash(filehash);
+				console.log(filehash);
+			} else {
+				console.log('large file detected');
+				// get chunks
+				const fileChunkList = createChunks(file);
+				message.loading('Processing file', 0);
+				const filehash = await calculateHashIncrmtl(fileChunkList);
+				console.log(filehash);
+				setHash(filehash);
+				message.destroy();
+				message.success('Processing done! Ready to upload', 2);
+				setRawChunkList(fileChunkList);
+			}
+			setFileList([file]);
+
+			return new Promise(res => {
 				res();
 			});
 		},
