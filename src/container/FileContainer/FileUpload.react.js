@@ -38,7 +38,7 @@ export const FileUpload = () => {
 			// console.log(((total * 100) / fileList[0].size).toFixed(2));
 			setPercentage(((total * 100) / fileList[0].size).toFixed(2));
 		}
-	}, [total]);
+	}, [total, fileList]);
 
 	const createProgressHandler = item => {
 		return e => {
