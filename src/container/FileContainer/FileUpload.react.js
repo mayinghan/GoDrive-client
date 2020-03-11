@@ -33,10 +33,12 @@ export const FileUpload = () => {
 	useEffect(() => {
 		if (!fileList[0]) setPercentage(0);
 		else {
-			// console.log(total);
-			// console.log(fileList[0].size);
-			// console.log(((total * 100) / fileList[0].size).toFixed(2));
-			setPercentage(((total * 100) / fileList[0].size).toFixed(2));
+			let currUploadPct = parseInt(((total * 100) / fileList[0].size).toFixed(2));
+			if (currUploadPct == 100) {
+				// not done, waiting for integrity checking
+				currUploadPct = 99;
+			}
+			setPercentage(currUploadPct);
 		}
 	}, [total, fileList]);
 
@@ -71,8 +73,6 @@ export const FileUpload = () => {
 				size: file.size,
 				percentage: uploadedList.includes(index) ? 100 : 0
 			}));
-
-			fileutils.verifyUpload(fileList[0].name, hash, rawChunkList.length);
 
 			// set the global var chunks. This is used to track the upload percentage
 			chunks = parts;
@@ -121,9 +121,15 @@ export const FileUpload = () => {
 							if (counter === len) {
 								// finish
 								console.log(res.data);
-								message.success('Upload done!');
-								fileutils.verifyUpload();
-								resolve();
+								fileutils.verifyUpload(fileList[0].name, hash, len).then(() => {
+									message.success('Upload done!');
+									// officially done
+									setPercentage(100);
+									resolve();
+								}).catch(err => {
+									console.log(err.response.data);
+									message.error(err.response.data.msg);
+								});
 							} else {
 								// continue
 								start();
@@ -244,9 +250,9 @@ export const FileUpload = () => {
 					data or other band files
 				</p>
 			</Dragger>
-			Preprocess<Progress type='dashboard' percent={hashPct}></Progress>
+			Preprocess<Progress type='line' percent={hashPct}></Progress>
 			Upload
-			<Progress type='dashboard' percent={percentage}></Progress>
+			<Progress type='line' percent={percentage}></Progress>
 		</div>
 	);
 };
