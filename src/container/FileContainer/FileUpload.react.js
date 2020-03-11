@@ -30,17 +30,17 @@ export const FileUpload = () => {
 
 	const user = useSelector(state => state.user);
 	const dispatch = useDispatch();
-	useEffect(() => {
-		if (!fileList[0]) setPercentage(0);
-		else {
-			let currUploadPct = parseInt(((total * 100) / fileList[0].size).toFixed(2));
-			if (currUploadPct == 100) {
-				// not done, waiting for integrity checking
-				currUploadPct = 99;
-			}
-			setPercentage(currUploadPct);
-		}
-	}, [total, fileList]);
+	// useEffect(() => {
+	// 	if (!fileList[0]) setPercentage(0);
+	// 	else {
+	// 		let currUploadPct = parseInt(((total * 100) / fileList[0].size).toFixed(2));
+	// 		if (currUploadPct == 100) {
+	// 			// not done, waiting for integrity checking
+	// 			currUploadPct = 99;
+	// 		}
+	// 		setPercentage(currUploadPct);
+	// 	}
+	// }, [total, fileList]);
 
 	const createProgressHandler = item => {
 		return e => {
@@ -118,10 +118,15 @@ export const FileUpload = () => {
 							// console.log(res.data);
 							max++; //release the channel
 							counter++;
+							let p = parseInt(counter * 100 / len);
+							if(p === 100) {
+								p = 99;
+							}
+							setPercentage(p);
 							if (counter === len) {
 								// finish
 								console.log(res.data);
-								fileutils.verifyUpload(fileList[0].name, hash, len).then(() => {
+								fileutils.verifyUpload(fileList[0].name, hash, len, fileList[0].size).then(() => {
 									message.success('Upload done!');
 									// officially done
 									setPercentage(100);
@@ -206,10 +211,11 @@ export const FileUpload = () => {
 			setPercentage(0.0);
 			setTotal(0);
 
+			let filehash = '';
 			console.log(file.size);
 			if (file.size <= THRESHOLD) {
 				console.log('small file detected!');
-				const filehash = await calculateHashWhole(file);
+				filehash = await calculateHashWhole(file);
 				setHash(filehash);
 				console.log(filehash);
 			} else {
@@ -217,15 +223,24 @@ export const FileUpload = () => {
 				// get chunks
 				const fileChunkList = createChunks(file);
 				message.loading('Processing file', 0);
-				const filehash = await calculateHashIncrmtl(fileChunkList);
+				filehash = await calculateHashIncrmtl(fileChunkList);
 				console.log(filehash);
 				setHash(filehash);
 				message.destroy();
-				message.success('Processing done! Ready to upload', 2);
 				setRawChunkList(fileChunkList);
 			}
 			setFileList([file]);
-
+			const shouldUpload = await fileutils.instantUpload(filehash);
+			console.log(shouldUpload);
+			// if the file can be instant uploaded
+			if(!shouldUpload) {
+				return new Promise((res, rej)=> {
+					setPercentage(100.00);
+					console.log(percentage);
+					setFileList([]);
+					rej();
+				});
+			}
 			return new Promise(res => {
 				res();
 			});
