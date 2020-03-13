@@ -1,26 +1,21 @@
 import React from 'react';
-import Slider from 'react-slick';
-import { Col } from 'antd';
-
+import { Carousel } from 'antd';
 
 const imageFit = {
-	maxWidth: '60%',
-	maxHeight: '60%',
-	padding: '60px'
+	display: 'block',
+	marginLeft: 'auto',
+	marginRight: 'auto',
+	width: '50%',
+	maxWidth: '30%',
+	maxHeight: '30%',
+	padding: '10px'
 };
 
 
 export class HomeSlide extends React.Component {
 	render() {
-		var settings = {
-			dots:true,
-			infinite:true,
-			speed:500,
-			slidesToShow:1,
-			slidesToScroll:1
-		};
 		return (
-			<div className="container">
+			<div>
 				<div style={{ display: 'inline' }}>
 					<p>
 						<span style={{ fontSize: '30px' }}>GoDrive</span> ———{' '}
@@ -29,24 +24,21 @@ export class HomeSlide extends React.Component {
 						</span>
 					</p>
 				</div>
-				<Slider {...settings}>
+				<Carousel autoplay>
 					<div>
 						<img style={imageFit} src={require('../../assets/file.png')} />
-						<br />
-						<h5>You could do resumable upload and download your files</h5>
+						<h6>You could do resumable upload and download your files</h6>
 					</div>
 					<div>
 						<img style={imageFit} src={require('../../assets/upload.png')} />
-						<br />
-						<h4>You could do instant upload for your specific files</h4>
+						<h6>You could do instant upload for your specific files</h6>
 					</div>
 					<div>
 						<img style={imageFit} src={require('../../assets/space.png')} />
-						<br />
-						<h4>You could experience with Distributed storge file blocks</h4>
-						<h4>We can support 200GB space</h4>
+						<h6>You could experience with Distributed storge file blocks
+							We can support 200GB space</h6>
 					</div>
-				</Slider>
+				</Carousel>
 			</div>
 		);
 	}
