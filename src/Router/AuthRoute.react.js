@@ -10,7 +10,7 @@ import browserCookie from 'browser-cookies';
 import { Login } from '../container/Authen/Login.react';
 import { Register } from '../container/Authen/Register.react';
 import { FileUpload } from '../container/FileContainer/FileUpload.react';
-import { Home } from '../container/Home/Home.react';
+import { HomeSlide } from '../container/Home/Slider.react';
 import { message } from 'antd';
 
 function NoMatch() {
@@ -105,7 +105,7 @@ class AuthRoute extends React.Component {
 			{
 				path: '/',
 				text: 'GoDrive',
-				component: Home,
+				component: HomeSlide,
 				className: 'navbar-title',
 				auth: false,
 				hide: false
