@@ -11,6 +11,7 @@ import { Login } from '../container/Authen/Login.react';
 import { Register } from '../container/Authen/Register.react';
 import { FileUpload } from '../container/FileContainer/FileUpload.react';
 import { HomeSlide } from '../container/Home/Slider.react';
+import { List } from '#/container/FileContainer/List.react';
 import { message } from 'antd';
 
 function NoMatch() {
@@ -137,7 +138,7 @@ class AuthRoute extends React.Component {
 			{
 				path: '/list',
 				text: 'List',
-				//component: List,
+				component: List,
 				className: leftNavbarClass,
 				auth: true,
 				hide: !isAuth || this.state.loading
