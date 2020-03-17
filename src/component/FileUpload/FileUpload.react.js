@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Upload, Progress, message } from 'antd';
+import { Upload, Progress, message, Button } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { checkAuth } from '#/redux/user.redux';
 import fileutils from '#/utils/files';
@@ -21,7 +21,7 @@ const createChunks = (file, size = SIZE) => {
 
 export const FileUpload = () => {
 	const [fileList, setFileList] = useState([]);
-	//	const [uploading, setUploading] = useState(false);
+	const [uploading, setUploading] = useState(false);
 	const [rawChunkList, setRawChunkList] = useState([]);
 	const [hash, setHash] = useState(0);
 	const [hashPct, setHashPct] = useState(0.0);
@@ -50,16 +50,28 @@ export const FileUpload = () => {
 	};
 
 	const handleUpload = () => {
+		console.log('start uploading');
+		setUploading(true);
 		if (fileList[0].size <= THRESHOLD) {
 			// small file, directly upload
 			const form = new FormData();
 			form.append('file', fileList[0]);
+			form.append('filehash', hash);
 			request({
 				url: '/api/file/upload',
 				data: form,
 				header: {
 					'content-type': 'multipart/form-data'
 				}
+			}).then(res => {
+				const responseData = JSON.parse(res.data);
+				if(responseData.code === 0) {
+					uploadDone();
+				} else {
+					console.log(responseData);
+					message.error('Upload failed, please upload again');
+				}
+				setFileList([]);
 			});
 		} else {
 			const uploadedList = [];
@@ -127,9 +139,7 @@ export const FileUpload = () => {
 								// finish
 								console.log(res.data);
 								fileutils.verifyUpload(fileList[0].name, hash, len, fileList[0].size).then(() => {
-									message.success('Upload done!');
-									// officially done
-									setPercentage(100);
+									uploadDone();
 									resolve();
 								}).catch(err => {
 									console.log(err.response.data);
@@ -196,6 +206,13 @@ export const FileUpload = () => {
 		});
 	};
 
+	const uploadDone = () => {
+		message.success('File upload successfully');
+		setPercentage(100);
+		setFileList([]);
+		setUploading(false);
+	};
+
 	const props = {
 		onRemove: file => {
 			const idx = fileList.indexOf(file);
@@ -234,10 +251,8 @@ export const FileUpload = () => {
 			console.log(shouldUpload);
 			// if the file can be instant uploaded
 			if(!shouldUpload) {
-				return new Promise((res, rej)=> {
-					setPercentage(100.00);
-					console.log(percentage);
-					setFileList([]);
+				return new Promise((_, rej)=> {
+					uploadDone();
 					rej();
 				});
 			}
@@ -265,6 +280,9 @@ export const FileUpload = () => {
 					data or other band files
 				</p>
 			</Dragger>
+			<Button disabled={!uploading} type='primary' size='large' className='button-cls'>Pause</Button>
+			<Button disabled={!uploading} type='danger' size='large' className='button-cls'>Cancel</Button>
+			<br></br>
 			Preprocess<Progress type='line' percent={hashPct}></Progress>
 			Upload
 			<Progress type='line' percent={percentage}></Progress>

@@ -31,19 +31,26 @@ code {
 .navbar-logout {
 	float: right;
 	margin-right: 15px;
+	letter-spacing: 1px;
 }
 .navbar-right {
 	float: right;
+	letter-spacing: 1px;
 }
 .navbar-title {
 	font-size: 16pt;
+	font-weight: 700;
 }
-
+.navbar-left {
+	letter-spacing: 1px;
+}
 .col-center {
 	float: none;
 	margin: 0 auto;
 }
-
+.center-cpn {
+	padding: 10%;
+}
 .table-margin-sides {
 	margin-left: 50px;
 	margin-right: 50px;
@@ -55,4 +62,8 @@ code {
 	padding-bottom: 50px;
 	overflow: hidden;
 	background: #364d79;
+}
+.button-cls {
+	margin: 10px;
+	margin-left: 0;
 }

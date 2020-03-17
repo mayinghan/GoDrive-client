@@ -9,7 +9,7 @@ import PrivateRoute from './PrivateRoute.react';
 import browserCookie from 'browser-cookies';
 import { Login } from '../container/Authen/Login.react';
 import { Register } from '../container/Authen/Register.react';
-import { FileUpload } from '../container/FileContainer/FileUpload.react';
+import { Upload } from '#/container/FileContainer/Upload.react';
 import { HomeSlide } from '../container/Home/Slider.react';
 import { List } from '#/container/FileContainer/List.react';
 import { message } from 'antd';
@@ -114,7 +114,8 @@ class AuthRoute extends React.Component {
 			{
 				path: '/upload',
 				text: 'Upload',
-				component: FileUpload,
+				className: 'navbar-left',
+				component: Upload,
 				auth: true,
 				hide: !isAuth || this.state.loading
 			},
