@@ -8,7 +8,8 @@ import fileutils from '#/utils/files';
 const { Dragger } = Upload;
 const THRESHOLD = 10 * 1024 * 1024;
 const SIZE = 2 * 1024 * 1024;
-let chunks = [];
+let pause = false;
+
 const createChunks = (file, size = SIZE) => {
 	const c = [];
 	let cur = 0;
@@ -26,10 +27,14 @@ export const FileUpload = () => {
 	const [hash, setHash] = useState(0);
 	const [hashPct, setHashPct] = useState(0.0);
 	const [percentage, setPercentage] = useState(0.0);
-	const [total, setTotal] = useState(0.0);
-
+	const [isLarge, setIsLarge] = useState(false);
+	const [pausing, setPausing] = useState(false);
 	const user = useSelector(state => state.user);
 	const dispatch = useDispatch();
+
+	let uploadingList = [];
+	let allXhrList = [];
+	
 	// useEffect(() => {
 	// 	if (!fileList[0]) setPercentage(0);
 	// 	else {
@@ -41,13 +46,6 @@ export const FileUpload = () => {
 	// 		setPercentage(currUploadPct);
 	// 	}
 	// }, [total, fileList]);
-
-	const createProgressHandler = item => {
-		return e => {
-			item.percentage = parseInt(String((e.loaded / e.total) * 100));
-			setTotal(total + e.loaded);
-		};
-	};
 
 	const handleUpload = () => {
 		console.log('start uploading');
@@ -87,7 +85,6 @@ export const FileUpload = () => {
 			}));
 
 			// set the global var chunks. This is used to track the upload percentage
-			chunks = parts;
 			const reqList = parts
 				.filter(c => uploadedList.indexOf(c.hash) === -1)
 				.map(({ chunk, chunkId, index }) => {
@@ -100,6 +97,13 @@ export const FileUpload = () => {
 					return { form, index };
 				});
 
+			reqList.forEach(() => {
+				allXhrList.push(makeXhr({
+					header: {
+						'content-type': 'multipart/form-data'
+					}}
+				));
+			});
 			sendRequests(reqList, 4);
 		}
 	};
@@ -109,71 +113,99 @@ export const FileUpload = () => {
 			const len = requestList.length;
 			let idx = 0;
 			let counter = 0;
+			
+			requestList.forEach(() => {
+				allXhrList.push(makeXhr({
+					header: {
+						'content-type': 'multipart/form-data'
+					}}
+				));
+			});
+
+			// allXhrList.forEach(e => e.open('post','/api/file/uploadchunk'));
+
 			const start = async () => {
-				// if there is a request and there is an available channel
-				while (idx < len && max > 0) {
-					max--; //this request take one channel
-					// console.log(idx, ' starts');
-					const form = requestList[idx].form;
-					// use to retry failed requests in the future
-					const chunkIdx = requestList[idx].index;
-					idx++;
-					request({
-						url: '/api/file/uploadchunk',
-						data: form,
-						header: {
-							'content-type': 'multipart/form-data'
-						},
-						onProgress: createProgressHandler(chunks[chunkIdx])
-					})
-						.then(res => {
-							// console.log(res.data);
-							max++; //release the channel
-							counter++;
-							let p = parseInt(counter * 100 / len);
-							if(p === 100) {
-								p = 99;
-							}
-							setPercentage(p);
-							if (counter === len) {
-								// finish
-								console.log(res.data);
-								fileutils.verifyUpload(fileList[0].name, hash, len, fileList[0].size).then(() => {
-									uploadDone();
-									resolve();
-								}).catch(err => {
-									console.log(err.response.data);
-									message.error(err.response.data.msg);
-								});
-							} else {
-								// continue
+				while(idx < len && max > 0) {
+					max--;
+					allXhrList[idx].open('post','/api/file/uploadchunk');
+					allXhrList[idx].send(requestList[idx].form);
+					allXhrList[idx].onload = e => {
+						max++;
+						counter++;
+						let p = parseInt(counter * 100 / len);
+						if(p === 100) {
+							p = 99;
+						}
+						setPercentage(p);
+						if (counter === len) {
+							// finish
+							console.log(e.target.response);
+							fileutils.verifyUpload(fileList[0].name, hash, len, fileList[0].size).then(() => {
+								uploadDone();
+								resolve();
+							}).catch(err => {
+								console.log(err.response.data);
+								message.error(err.response.data.msg);
+								reject(err);
+							});
+						} else {
+							// continue
+							console.log(isPaused());
+							if(!isPaused()) {
 								start();
 							}
-						})
-						.catch(err => {
-							reject(err);
-						});
+						}
+					};
 				}
 			};
 			start();
 		});
 	};
-
+	const isPaused = () => {
+		return pause;
+	};
 	const request = ({ url, data, headers = {} }) => {
 		return new Promise(resolve => {
 			const xhr = new XMLHttpRequest();
 			// xhr.upload.onprogress = onProgress;
-
-			xhr.upload.addEventListener('progress', e => {
-				setTotal(prev => prev + e.loaded);
-			});
 			xhr.open('post', url);
 			Object.keys(headers).forEach(k => xhr.setRequestHeader(k, headers[k]));
 			xhr.send(data);
+			//console.log(uploadingList);
 			xhr.onload = e => {
+				if(uploadingList) {
+					const xhrIndx = uploadingList.findIndex(item => item === xhr);
+					uploadingList.splice(xhrIndx, 1);
+				}
 				resolve({ data: e.target.response });
 			};
+			uploadingList?.push(xhr);
 		});
+	};
+
+	const makeXhr = ({ headers={}}) => {
+		const xhr = new XMLHttpRequest();
+		
+		Object.keys(headers).forEach(k => xhr.setRequestHeader(k, headers[k]));
+
+		return xhr;
+	};
+
+	const handlePause = () => {
+		console.log('Paused');
+		pause = true;
+		setPausing(true);
+		uploadingList.forEach(xhr => 
+		{
+			console.log(xhr);
+			xhr?.abort();
+		});
+	};
+
+	const handleResume = () => {
+		console.log('resuming');
+		pause = false;
+		setPausing(false);
 	};
 
 	// calculate the hash of the file incrementally
@@ -210,6 +242,7 @@ export const FileUpload = () => {
 		message.success('File upload successfully');
 		setPercentage(100);
 		setFileList([]);
+		setIsLarge(false);
 		setUploading(false);
 	};
 
@@ -226,8 +259,9 @@ export const FileUpload = () => {
 			// init
 			setHashPct(0.0);
 			setPercentage(0.0);
-			setTotal(0);
-
+			setPausing(false);
+			pause = false;
+			uploadingList = [];
 			let filehash = '';
 			console.log(file.size);
 			if (file.size <= THRESHOLD) {
@@ -237,6 +271,7 @@ export const FileUpload = () => {
 				console.log(filehash);
 			} else {
 				console.log('large file detected');
+				setIsLarge(true);
 				// get chunks
 				const fileChunkList = createChunks(file);
 				message.loading('Processing file', 0);
@@ -266,6 +301,8 @@ export const FileUpload = () => {
 		fileList
 	};
 
+	
+
 	return (
 		<div>
 			<Dragger {...props}>
@@ -280,8 +317,13 @@ export const FileUpload = () => {
 					data or other band files
 				</p>
 			</Dragger>
-			<Button disabled={!uploading} type='primary' size='large' className='button-cls'>Pause</Button>
-			<Button disabled={!uploading} type='danger' size='large' className='button-cls'>Cancel</Button>
+			{isLarge ? <div>
+				{!pausing ? 
+					<Button disabled={!uploading} onClick={handlePause} type='primary' size='large' className='button-cls'>Pause</Button>
+					: <Button disabled={!uploading} onClick={handleResume} type='primary' size='large' className='button-cls'>Resume</Button>
+				}
+				<Button disabled={!uploading} type='danger' size='large' className='button-cls'>Cancel</Button></div>: null}
+			
 			<br></br>
 			Preprocess<Progress type='line' percent={hashPct}></Progress>
 			Upload
