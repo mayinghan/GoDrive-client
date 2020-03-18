@@ -19,7 +19,7 @@ const initState = {
 export function userRedux(state = initState, action) {
 	switch (action.type) {
 	case NO_USER:
-		return { ...state, isAuth: false };
+		return { ...initState, isAuth: false };
 	case LOAD_DATA:
 		return { ...state, ...action.payload, isAuth: true, redirectTo: '/' };
 	case UPDATE_AUTH:

@@ -9,7 +9,7 @@ import PrivateRoute from './PrivateRoute.react';
 import browserCookie from 'browser-cookies';
 import { Login } from '../container/Authen/Login.react';
 import { Register } from '../container/Authen/Register.react';
-import { Upload } from '#/container/FileContainer/Upload.react';
+import Upload from '#/container/FileContainer/Upload.react';
 import { HomeSlide } from '../container/Home/Slider.react';
 import { List } from '#/container/FileContainer/List.react';
 import { message } from 'antd';
@@ -78,7 +78,7 @@ class AuthRoute extends React.Component {
 							message.warning(res.data.msg);
 							browserCookie.erase('token');
 						}
-						const publicPath = ['/', '/login', '/register'];
+						const publicPath = ['/login', '/register'];
 						if (publicPath.indexOf(this.props.location.pathname) === -1) {
 							console.log(this.props.history.location);
 							console.log('going to login');
