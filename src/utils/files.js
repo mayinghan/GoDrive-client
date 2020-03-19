@@ -25,7 +25,6 @@ const utils = {
 			}
 		});
 	},
-	
 	// get uploaded chunks
 	getUploaded: function(filehash) {
 		console.log('filehash %s', filehash);

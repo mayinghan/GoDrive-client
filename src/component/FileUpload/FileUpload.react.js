@@ -23,6 +23,18 @@ export const FileUpload = () => {
 	const user = useSelector(state => state.user);
 	const dispatch = useDispatch();
 
+	// useEffect(() => {
+	// 	if (!fileList[0]) setPercentage(0);
+	// 	else {
+	// 		let currUploadPct = parseInt(((total * 100) / fileList[0].size).toFixed(2));
+	// 		if (currUploadPct == 100) {
+	// 			// not done, waiting for integrity checking
+	// 			currUploadPct = 99;
+	// 		}
+	// 		setPercentage(currUploadPct);
+	// 	}
+	// }, [total, fileList]);
+
 	const handleUpload = async () => {
 		console.log('start uploading');
 		setUploading(true);
@@ -49,6 +61,7 @@ export const FileUpload = () => {
 			});
 		} else {
 			const uploadedList = await fileutils.getUploaded(hash);
+			setPercentage(parseInt(uploadedList.length * 100 / rawChunkList.length));
 			const uploadId =
 				user.username + '-' + hash + '-' + fileList[0].name;
 			const parts = rawChunkList.map(({ file }, index) => ({
@@ -60,9 +73,10 @@ export const FileUpload = () => {
 				percentage: uploadedList.includes(index) ? 100 : 0
 			}));
 
+			// filter out chunks that have already been uploaded
 			// set the global var chunks. This is used to track the upload percentage
 			const reqList = parts
-				.filter(c => uploadedList.indexOf(c.hash) === -1)
+				.filter(c => uploadedList.indexOf(c.index) === -1)
 				.map(({ chunk, chunkId, index }) => {
 					console.log(chunkId);
 					const form = new FormData();
@@ -74,15 +88,16 @@ export const FileUpload = () => {
 					return { form, index };
 				});
 
-			sendRequests(reqList, 4);
+			sendRequests(uploadedList, reqList, 4);
 		}
 	};
 
-	const sendRequests = (requestList, max = 4) => {
+	const sendRequests = (uploadedList=[], requestList, max = 4) => {
 		return new Promise((resolve, reject) => {
+			const totalLen = requestList.length + uploadedList.length;
 			const len = requestList.length;
 			let idx = 0;
-			let counter = 0;
+			let counter = uploadedList.length;
 			let allXhrList = [];
 			requestList.forEach(() => {
 				allXhrList.push(makeXhr({
@@ -92,7 +107,18 @@ export const FileUpload = () => {
 				));
 			});
 
+			uploadedList = allXhrList;
 			const start = async () => {
+				if(!allXhrList.length) {
+					fileutils.verifyUpload(fileList[0].name, hash, rawChunkList.length, fileList[0].size).then(() => {
+						uploadDone();
+						resolve();
+					}).catch(err => {
+						console.log(err.response.data);
+						message.error(err.response.data.msg);
+						reject(err);
+					});
+				}
 				while(idx < len && max > 0) {
 					max--;
 					allXhrList[idx].open('post','/api/file/uploadchunk');
@@ -100,14 +126,16 @@ export const FileUpload = () => {
 					allXhrList[idx].onload = e => {
 						max++;
 						counter++;
-						let p = parseInt(counter * 100 / rawChunkList.length);
+						let p = parseInt(counter * 100 / totalLen);
 						if(p === 100) {
 							p = 99;
 						}
 						setPercentage(p);
-						if (counter === len) {
+						if (counter === totalLen) {
 							// finish
+							setUploading(false);
 							console.log(e.target.response);
+							
 							fileutils.verifyUpload(fileList[0].name, hash, rawChunkList.length, fileList[0].size).then(() => {
 								uploadDone();
 								resolve();
@@ -175,13 +203,7 @@ export const FileUpload = () => {
 		console.log('resuming');
 		pause = false;
 		setPausing(false);
-
-	};
-
-	const getUploaded = async () => {
-		return new Promise(resolve => {
-			fileutils.getUploaded(hash);
-		});
+		handleUpload();
 	};
 
 	// calculate the hash of the file incrementally
