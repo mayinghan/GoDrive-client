@@ -30,7 +30,7 @@ export class HomeSlide extends React.Component {
 						
 					</div>
 					<div>
-						<img style={imageFit} src={require('../../assets/instant - Copy.jpg')} />					
+						<img style={imageFit} src={require('../../assets/instant.jpg')} />					
 					</div>
 					<div>
 						<img style={imageFit} src={require('../../assets/storage.jpg')} />						
