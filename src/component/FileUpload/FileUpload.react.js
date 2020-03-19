@@ -78,7 +78,6 @@ export const FileUpload = () => {
 			const reqList = parts
 				.filter(c => uploadedList.indexOf(c.index) === -1)
 				.map(({ chunk, chunkId, index }) => {
-					console.log(chunkId);
 					const form = new FormData();
 					form.append('chunk', chunk);
 					form.append('uploadId', uploadId);
@@ -146,7 +145,7 @@ export const FileUpload = () => {
 							});
 						} else {
 							// continue
-							console.log(isPaused());
+							// console.log(isPaused());
 							if(!isPaused()) {
 								start();
 							}
@@ -271,7 +270,7 @@ export const FileUpload = () => {
 			pause = false;
 			uploadingList = [];
 			let filehash = '';
-			console.log(file.size);
+			// console.log(file.size);
 			if (file.size <= THRESHOLD) {
 				console.log('small file detected!');
 				filehash = await calculateHashWhole(file);
@@ -291,7 +290,7 @@ export const FileUpload = () => {
 			}
 			setFileList([file]);
 			const shouldUpload = await fileutils.instantUpload(filehash);
-			console.log(shouldUpload);
+			console.log('should upload? ', shouldUpload);
 			// if the file can be instant uploaded
 			if(!shouldUpload) {
 				return new Promise((_, rej)=> {
