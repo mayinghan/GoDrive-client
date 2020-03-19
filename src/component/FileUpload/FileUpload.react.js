@@ -130,13 +130,12 @@ export const FileUpload = () => {
 				}
 				while(idx < len && max > 0) {
 					max--;
-					console.log(allXhrList);
 					allXhrList[idx].open('post','/api/file/uploadchunk');
 					allXhrList[idx].send(requestList[idx].form);
 					allXhrList[idx].onload = e => {
 						max++;
 						counter++;
-						let p = parseInt(counter * 100 / len);
+						let p = parseInt(counter * 100 / totalLen);
 						if(p === 100) {
 							p = 99;
 						}
