@@ -1,69 +1,69 @@
 body {
-	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-		'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-		sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-		monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }
 
 .login-form {
-	max-width: 300px;
+  max-width: 300px;
 }
 .login-form-forgot {
-	float: right;
+  float: right;
 }
 .login-form-button {
-	text-align: center;
+  text-align: center;
 }
 .title-middle {
-	text-align: center;
-	position: relative;
-	margin-top: 15px;
-	margin-bottom: 15px;
+  text-align: center;
+  position: relative;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 .navbar-logout {
-	float: right;
-	margin-right: 15px;
-	letter-spacing: 1px;
+  float: right;
+  margin-right: 15px;
+  letter-spacing: 1px;
 }
 .navbar-right {
-	float: right;
-	letter-spacing: 1px;
+  float: right;
+  letter-spacing: 1px;
 }
 .navbar-title {
-	font-size: 16pt;
-	font-weight: 700;
+  font-size: 16pt;
+  font-weight: 700;
 }
 .navbar-left {
-	letter-spacing: 1px;
+  letter-spacing: 1px;
 }
 .col-center {
-	float: none;
-	margin: 0 auto;
+  float: none;
+  margin: 0 auto;
 }
 .center-cpn {
-	padding: 10%;
+  padding: 10%;
 }
 .table-margin-sides {
-	margin-left: 50px;
-	margin-right: 50px;
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
 .ant-carousel .slick-slide {
-	text-align: center;
-	height: auto;
-	padding-bottom: 50px;
-	overflow: hidden;
-	background: #364d79;
+  text-align: justify;
+  height: 300px;
+  padding-bottom: 0px;
+  overflow: hidden;
+  background: #b0c4de;
 }
 .button-cls {
-	margin: 10px;
-	margin-left: 0;
+  margin: 10px;
+  margin-left: 0;
 }

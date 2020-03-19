@@ -5,10 +5,10 @@ const imageFit = {
 	display: 'block',
 	marginLeft: 'auto',
 	marginRight: 'auto',
-	width: '50%',
-	maxWidth: '30%',
-	maxHeight: '30%',
-	padding: '10px'
+	width: '100%',
+	maxWidth: '100%',
+	maxHeight: '80%',
+	padding: '0px'
 };
 
 
@@ -26,17 +26,14 @@ export class HomeSlide extends React.Component {
 				</div>
 				<Carousel autoplay>
 					<div>
-						<img style={imageFit} src={require('../../assets/file.png')} />
-						<h6>You could do resumable upload and download your files</h6>
+						<img style={imageFit} src={require('../../assets/upload.jpg')} />
+						
 					</div>
 					<div>
-						<img style={imageFit} src={require('../../assets/upload.png')} />
-						<h6>You could do instant upload for your specific files</h6>
+						<img style={imageFit} src={require('../../assets/instant - Copy.jpg')} />					
 					</div>
 					<div>
-						<img style={imageFit} src={require('../../assets/space.png')} />
-						<h6>You could experience with Distributed storge file blocks
-							We can support 200GB space</h6>
+						<img style={imageFit} src={require('../../assets/storage.jpg')} />						
 					</div>
 				</Carousel>
 			</div>
