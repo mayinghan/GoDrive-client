@@ -156,6 +156,7 @@ export const FileUpload = () => {
 							}
 						}
 					};
+					idx++;
 				}
 			};
 			start();
