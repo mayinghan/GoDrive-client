@@ -9,16 +9,7 @@ const { Dragger } = Upload;
 const THRESHOLD = 10 * 1024 * 1024;
 const SIZE = 2 * 1024 * 1024;
 let pause = false;
-
-const createChunks = (file, size = SIZE) => {
-	const c = [];
-	let cur = 0;
-	while (cur < file.size) {
-		c.push({ file: file.slice(cur, cur + size) });
-		cur += size;
-	}
-	return c;
-};
+let uploadingList = [];
 
 export const FileUpload = () => {
 	const [fileList, setFileList] = useState([]);
@@ -32,22 +23,7 @@ export const FileUpload = () => {
 	const user = useSelector(state => state.user);
 	const dispatch = useDispatch();
 
-	let uploadingList = [];
-	let allXhrList = [];
-	
-	// useEffect(() => {
-	// 	if (!fileList[0]) setPercentage(0);
-	// 	else {
-	// 		let currUploadPct = parseInt(((total * 100) / fileList[0].size).toFixed(2));
-	// 		if (currUploadPct == 100) {
-	// 			// not done, waiting for integrity checking
-	// 			currUploadPct = 99;
-	// 		}
-	// 		setPercentage(currUploadPct);
-	// 	}
-	// }, [total, fileList]);
-
-	const handleUpload = () => {
+	const handleUpload = async () => {
 		console.log('start uploading');
 		setUploading(true);
 		if (fileList[0].size <= THRESHOLD) {
@@ -72,9 +48,9 @@ export const FileUpload = () => {
 				setFileList([]);
 			});
 		} else {
-			const uploadedList = [];
+			const uploadedList = await fileutils.getUploaded(hash);
 			const uploadId =
-				user.username + '-' + new Date().getTime() + '-' + fileList[0].name;
+				user.username + '-' + hash + '-' + fileList[0].name;
 			const parts = rawChunkList.map(({ file }, index) => ({
 				fileHash: hash,
 				index,
@@ -88,6 +64,7 @@ export const FileUpload = () => {
 			const reqList = parts
 				.filter(c => uploadedList.indexOf(c.hash) === -1)
 				.map(({ chunk, chunkId, index }) => {
+					console.log(chunkId);
 					const form = new FormData();
 					form.append('chunk', chunk);
 					form.append('uploadId', uploadId);
@@ -97,13 +74,6 @@ export const FileUpload = () => {
 					return { form, index };
 				});
 
-			reqList.forEach(() => {
-				allXhrList.push(makeXhr({
-					header: {
-						'content-type': 'multipart/form-data'
-					}}
-				));
-			});
 			sendRequests(reqList, 4);
 		}
 	};
@@ -113,7 +83,7 @@ export const FileUpload = () => {
 			const len = requestList.length;
 			let idx = 0;
 			let counter = 0;
-			
+			let allXhrList = [];
 			requestList.forEach(() => {
 				allXhrList.push(makeXhr({
 					header: {
@@ -121,8 +91,6 @@ export const FileUpload = () => {
 					}}
 				));
 			});
-
-			// allXhrList.forEach(e => e.open('post','/api/file/uploadchunk'));
 
 			const start = async () => {
 				while(idx < len && max > 0) {
@@ -132,7 +100,7 @@ export const FileUpload = () => {
 					allXhrList[idx].onload = e => {
 						max++;
 						counter++;
-						let p = parseInt(counter * 100 / len);
+						let p = parseInt(counter * 100 / rawChunkList.length);
 						if(p === 100) {
 							p = 99;
 						}
@@ -140,7 +108,7 @@ export const FileUpload = () => {
 						if (counter === len) {
 							// finish
 							console.log(e.target.response);
-							fileutils.verifyUpload(fileList[0].name, hash, len, fileList[0].size).then(() => {
+							fileutils.verifyUpload(fileList[0].name, hash, rawChunkList.length, fileList[0].size).then(() => {
 								uploadDone();
 								resolve();
 							}).catch(err => {
@@ -161,9 +129,11 @@ export const FileUpload = () => {
 			start();
 		});
 	};
+
 	const isPaused = () => {
 		return pause;
 	};
+
 	const request = ({ url, data, headers = {} }) => {
 		return new Promise(resolve => {
 			const xhr = new XMLHttpRequest();
@@ -171,7 +141,7 @@ export const FileUpload = () => {
 			xhr.open('post', url);
 			Object.keys(headers).forEach(k => xhr.setRequestHeader(k, headers[k]));
 			xhr.send(data);
-			//console.log(uploadingList);
+
 			xhr.onload = e => {
 				if(uploadingList) {
 					const xhrIndx = uploadingList.findIndex(item => item === xhr);
@@ -185,9 +155,7 @@ export const FileUpload = () => {
 
 	const makeXhr = ({ headers={}}) => {
 		const xhr = new XMLHttpRequest();
-		
 		Object.keys(headers).forEach(k => xhr.setRequestHeader(k, headers[k]));
-
 		return xhr;
 	};
 
@@ -206,6 +174,13 @@ export const FileUpload = () => {
 		console.log('resuming');
 		pause = false;
 		setPausing(false);
+
+	};
+
+	const getUploaded = async () => {
+		return new Promise(resolve => {
+			fileutils.getUploaded(hash);
+		});
 	};
 
 	// calculate the hash of the file incrementally
@@ -244,6 +219,16 @@ export const FileUpload = () => {
 		setFileList([]);
 		setIsLarge(false);
 		setUploading(false);
+	};
+
+	const createChunks = (file, size = SIZE) => {
+		const c = [];
+		let cur = 0;
+		while (cur < file.size) {
+			c.push({ file: file.slice(cur, cur + size) });
+			cur += size;
+		}
+		return c;
 	};
 
 	const props = {
@@ -300,8 +285,6 @@ export const FileUpload = () => {
 		},
 		fileList
 	};
-
-	
 
 	return (
 		<div>
