@@ -7,6 +7,7 @@ const PrivateRoute = ({ isAuth, component: Component, ...rest }) => {
 		<Route
 			{...rest}
 			render={props => {
+				console.log('Private Route Auth check: ', isAuth);
 				if (isAuth === undefined) {
 					return null;
 				} else {

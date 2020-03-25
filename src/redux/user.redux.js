@@ -5,7 +5,7 @@ const LOAD_DATA = 'LOAD_DATA';
 const AUTH_SUCC = 'AUTH_SUCC';
 const LOGOUT = 'LOGOUT';
 const NO_USER = 'NO_USER';
-const ERROR_MSG = 'ERROR_MSG';
+const AUTH_ERR = 'AUTH_ERR';
 const UPDATE_AUTH = 'UPDATE_AUTH';
 
 // init state
@@ -32,7 +32,7 @@ export function userRedux(state = initState, action) {
 			isAuth: true,
 			redirectTo: '/'
 		};
-	case ERROR_MSG:
+	case AUTH_ERR:
 		return { ...state, isAuth: false, msg: action.msg };
 	case LOGOUT:
 		return { ...initState, isAuth: false };
@@ -49,7 +49,7 @@ const authSuccess = obj => {
 
 function errorMsg(msg) {
 	message.error(msg);
-	return { msg, type: ERROR_MSG };
+	return { msg, type: AUTH_ERR };
 }
 
 function updateAuth(auth) {

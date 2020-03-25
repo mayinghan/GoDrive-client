@@ -11,7 +11,7 @@ import { Login } from '../container/Authen/Login.react';
 import { Register } from '../container/Authen/Register.react';
 import Upload from '#/container/FileContainer/Upload.react';
 import { HomeSlide } from '../container/Home/Slider.react';
-import { List } from '#/container/FileContainer/List.react';
+import List from '#/container/FileContainer/List.react';
 import { message } from 'antd';
 
 function NoMatch() {
