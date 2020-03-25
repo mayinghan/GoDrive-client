@@ -6,25 +6,27 @@ import { getFileList } from '#/redux/file.redux';
 const { Column } = Table;
 
 export const FileList = () => {
-	const fontStyle = { fontSize: 16 };
-	const gutter = [0, 5];
-
 	// hooks
-	const [deleteModal, setDeleteModal] = useState({
-		visible: false,
-	});
-	const [fileList, setFileList] = useState([]);
+	const [deleteModalVsb, setDeleteModalVsb] = useState(false); // set the delete modal visibility
 	const [loading, setLoading] = useState(true);
 	const dispatch = useDispatch();
 	const fileState = useSelector(s => s.file);
 
 	useEffect(() => {
-		dispatch(getFileList());
+		dispatch(getFileList()).then(() => {
+			setLoading(false);
+		});
+		
 	}, [dispatch]);
 	
 	return (
 		<React.Fragment>
 			<div>List</div>
+			{/* table items are in fileState.myFiles */}
+			{console.log(fileState.myFiles)}
+			<Table loading={loading}>
+
+			</Table>
 		</React.Fragment>
 	);
 };
