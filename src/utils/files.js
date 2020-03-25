@@ -23,6 +23,19 @@ const utils = {
 				return res.data.data.shouldUpload;
 			}
 		});
+	},
+
+	// get uploaded chunks
+	getUploaded: function(filehash) {
+		console.log('filehash %s', filehash);
+		return axios.get(`/api/file/prevChunks?filehash=${filehash}`).then(res => {
+			console.log(res.data.msg);
+			console.log(res.data);
+			if(res.data.code === 0) {
+				console.log(res.data.data);
+			}
+			return res.data.data.uploadedList;
+		});
 	}
 };
 

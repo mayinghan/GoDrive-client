@@ -1,5 +1,10 @@
 import React from 'react';
+import { FileList } from '#/component/FileUpload/FileList.react';
+import withAuth from '#/component/HOC/CheckAuth.react';
 
-export const List = () => {
-	return <h1>This is a list</h1>;
+const List = () => {
+	return <FileList></FileList>;
 };
+
+
+export default withAuth(List);

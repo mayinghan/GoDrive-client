@@ -9,6 +9,7 @@ const { Dragger } = Upload;
 const THRESHOLD = 10 * 1024 * 1024;
 const SIZE = 2 * 1024 * 1024;
 let pause = false;
+let uploadingList = [];
 
 const createChunks = (file, size = SIZE) => {
 	const c = [];
@@ -32,9 +33,6 @@ export const FileUpload = () => {
 	const user = useSelector(state => state.user);
 	const dispatch = useDispatch();
 
-	let uploadingList = [];
-	let allXhrList = [];
-	
 	// useEffect(() => {
 	// 	if (!fileList[0]) setPercentage(0);
 	// 	else {
@@ -47,7 +45,7 @@ export const FileUpload = () => {
 	// 	}
 	// }, [total, fileList]);
 
-	const handleUpload = () => {
+	const handleUpload = async () => {
 		console.log('start uploading');
 		setUploading(true);
 		if (fileList[0].size <= THRESHOLD) {
@@ -72,7 +70,8 @@ export const FileUpload = () => {
 				setFileList([]);
 			});
 		} else {
-			const uploadedList = [];
+			const uploadedList = await fileutils.getUploaded(hash);
+			setPercentage(parseInt(uploadedList.length * 100 / rawChunkList.length));
 			const uploadId =
 				user.username + '-' + new Date().getTime() + '-' + fileList[0].name;
 			const parts = rawChunkList.map(({ file }, index) => ({
@@ -84,9 +83,10 @@ export const FileUpload = () => {
 				percentage: uploadedList.includes(index) ? 100 : 0
 			}));
 
+			// filter out chunks that have already been uploaded
 			// set the global var chunks. This is used to track the upload percentage
 			const reqList = parts
-				.filter(c => uploadedList.indexOf(c.hash) === -1)
+				.filter(c => uploadedList.indexOf(c.index) === -1)
 				.map(({ chunk, chunkId, index }) => {
 					const form = new FormData();
 					form.append('chunk', chunk);
@@ -97,23 +97,17 @@ export const FileUpload = () => {
 					return { form, index };
 				});
 
-			reqList.forEach(() => {
-				allXhrList.push(makeXhr({
-					header: {
-						'content-type': 'multipart/form-data'
-					}}
-				));
-			});
-			sendRequests(reqList, 4);
+			sendRequests(uploadedList, reqList, 4);
 		}
 	};
 
-	const sendRequests = (requestList, max = 4) => {
+	const sendRequests = (uploadedList=[], requestList, max = 4) => {
 		return new Promise((resolve, reject) => {
+			const totalLen = requestList.length + uploadedList.length;
 			const len = requestList.length;
 			let idx = 0;
-			let counter = 0;
-			
+			let counter = uploadedList.length;
+			let allXhrList = [];
 			requestList.forEach(() => {
 				allXhrList.push(makeXhr({
 					header: {
@@ -122,9 +116,18 @@ export const FileUpload = () => {
 				));
 			});
 
-			// allXhrList.forEach(e => e.open('post','/api/file/uploadchunk'));
-
+			uploadedList = allXhrList;
 			const start = async () => {
+				if(!allXhrList.length) {
+					fileutils.verifyUpload(fileList[0].name, hash, rawChunkList.length, fileList[0].size).then(() => {
+						uploadDone();
+						resolve();
+					}).catch(err => {
+						console.log(err.response.data);
+						message.error(err.response.data.msg);
+						reject(err);
+					});
+				}
 				while(idx < len && max > 0) {
 					max--;
 					allXhrList[idx].open('post','/api/file/uploadchunk');
@@ -132,15 +135,17 @@ export const FileUpload = () => {
 					allXhrList[idx].onload = e => {
 						max++;
 						counter++;
-						let p = parseInt(counter * 100 / len);
+						let p = parseInt(counter * 100 / totalLen);
 						if(p === 100) {
 							p = 99;
 						}
 						setPercentage(p);
-						if (counter === len) {
+						if (counter === totalLen) {
 							// finish
+							setUploading(false);
 							console.log(e.target.response);
-							fileutils.verifyUpload(fileList[0].name, hash, len, fileList[0].size).then(() => {
+							
+							fileutils.verifyUpload(fileList[0].name, hash, rawChunkList.length, fileList[0].size).then(() => {
 								uploadDone();
 								resolve();
 							}).catch(err => {
@@ -156,14 +161,17 @@ export const FileUpload = () => {
 							}
 						}
 					};
+					idx++;
 				}
 			};
 			start();
 		});
 	};
+
 	const isPaused = () => {
 		return pause;
 	};
+
 	const request = ({ url, data, headers = {} }) => {
 		return new Promise(resolve => {
 			const xhr = new XMLHttpRequest();
@@ -185,9 +193,7 @@ export const FileUpload = () => {
 
 	const makeXhr = ({ headers={}}) => {
 		const xhr = new XMLHttpRequest();
-		
 		Object.keys(headers).forEach(k => xhr.setRequestHeader(k, headers[k]));
-
 		return xhr;
 	};
 
@@ -206,6 +212,7 @@ export const FileUpload = () => {
 		console.log('resuming');
 		pause = false;
 		setPausing(false);
+		handleUpload();
 	};
 
 	// calculate the hash of the file incrementally
