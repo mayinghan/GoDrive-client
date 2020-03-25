@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Table, Button, Modal, Row, Col } from 'antd';
+import { Table, Button, Modal, Row, Col, Tooltip } from 'antd';
 import { getFileList } from '#/redux/file.redux';
+import { CloudDownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const { Column } = Table;
 
@@ -21,11 +22,34 @@ export const FileList = () => {
 	
 	return (
 		<React.Fragment>
-			<div>List</div>
 			{/* table items are in fileState.myFiles */}
 			{console.log(fileState.myFiles)}
-			<Table loading={loading}>
-
+			<Table 
+				dataSource={fileState.myFiles}
+				loading={loading}>
+				<Column
+					title='FileName'
+					dataIndex='filename'
+					key='filename'
+				/>
+				<Column
+					render={(text, record) =>{
+						return (
+							<Tooltip title="Download">
+								<Button shape="round" icon={<CloudDownloadOutlined />} />
+							</Tooltip>
+						);
+					}}
+				></Column>
+				<Column
+					render={(text, record) =>{
+						return (
+							<Tooltip title="Delete">
+								<Button shape="round" icon={<DeleteOutlined />} />
+							</Tooltip>
+						);
+					}}
+				></Column>
 			</Table>
 		</React.Fragment>
 	);
