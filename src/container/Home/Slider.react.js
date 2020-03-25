@@ -26,14 +26,14 @@ export class HomeSlide extends React.Component {
 				</div>
 				<Carousel autoplay>
 					<div>
-						<img style={imageFit} src={require('../../assets/resumable.jpg')} />
+						<img style={imageFit} src={require('../../assets/resumable2.jpg')} />
 						
 					</div>
 					<div>
-						<img style={imageFit} src={require('../../assets/instant.jpg')} />					
+						<img style={imageFit} src={require('../../assets/instant3.jpg')} />					
 					</div>
 					<div>
-						<img style={imageFit} src={require('../../assets/storage.jpg')} />						
+						<img style={imageFit} src={require('../../assets/storage2.jpg')} />						
 					</div>
 				</Carousel>
 			</div>
