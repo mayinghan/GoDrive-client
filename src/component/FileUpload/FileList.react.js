@@ -23,7 +23,7 @@ export const FileList = () => {
 	return (
 		<React.Fragment>
 			{/* table items are in fileState.myFiles */}
-			{console.log(fileState.myFiles)}
+			{/* {console.log(fileState.myFiles)} */}
 			<Table 
 				dataSource={fileState.myFiles}
 				loading={loading}>
@@ -33,6 +33,7 @@ export const FileList = () => {
 					key='filename'
 				/>
 				<Column
+					title='Download'
 					render={(text, record) =>{
 						return (
 							<Tooltip title="Download">
@@ -42,6 +43,7 @@ export const FileList = () => {
 					}}
 				></Column>
 				<Column
+					title='Delete'
 					render={(text, record) =>{
 						return (
 							<Tooltip title="Delete">
