@@ -3,7 +3,7 @@ import { Row, Col } from 'antd';
 
 const imageFit = {
 	maxWidth: '90%',
-	maxHeight: '90%',
+	maxHeight: '70%',
 	padding: '30px'
 };
 

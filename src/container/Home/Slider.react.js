@@ -5,10 +5,11 @@ const imageFit = {
 	display: 'block',
 	marginLeft: 'auto',
 	marginRight: 'auto',
-	width: '100%',
+	// width: '100%',
 	maxWidth: '100%',
-	maxHeight: '80%',
-	padding: '0px'
+	maxHeight: '50%',
+	objectFit: 'cover'
+	// padding: '0px'
 };
 
 
@@ -20,13 +21,13 @@ export class HomeSlide extends React.Component {
 					<p>
 						<span style={{ fontSize: '30px' }}>GoDrive</span> ———{' '}
 						<span style={{ fontSize: '18px' }}>
-							A platform for storage and download files
+							A file storage platform
 						</span>
 					</p>
 				</div>
 				<Carousel autoplay>
 					<div>
-						<img style={imageFit} src={require('../../assets/upload.jpg')} />
+						<img style={imageFit} src={require('../../assets/resumable.jpg')} />
 						
 					</div>
 					<div>
