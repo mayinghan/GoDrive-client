@@ -23,7 +23,6 @@ export function fileRedux(state=initState, action) {
 
 // helper
 function updateList(list) {
-	console.log(list);
 	return { type: LOAD_FILE_SUC, payload: list };
 }
 

@@ -99,63 +99,82 @@ class AuthRoute extends React.Component {
 
 	render() {
 		const isAuth = this.props.user.isAuth;
-		const rightNavbarClass = 'navbar-right';
-		const leftNavbarClass = 'navbar-left';
+		const rightNavbarClass = 'navbar-right header-nav';
+		const leftNavbarClass = 'navbar-left header-nav';
+		const fontClass = 'navbar-font';
 		// console.log(this.state.loading);
-		const navList = [
+		const home = [
 			{
 				path: '/',
 				text: 'GoDrive',
 				component: HomeSlide,
-				className: 'navbar-title',
+				className: 'navbar-title header-nav',
 				auth: false,
 				hide: false
 			},
+		];
+		const navList = [
 			{
 				path: '/upload',
 				text: 'Upload',
-				className: 'navbar-left',
+				className: fontClass,
 				component: Upload,
 				auth: true,
 				hide: !isAuth || this.state.loading
 			},
 			{
-				path: '/register',
-				text: 'Register',
-				component: Register,
-				className: rightNavbarClass,
-				auth: false,
-				hide: isAuth || this.state.loading
+				path: '/list',
+				text: 'List',
+				component: List,
+				className: fontClass,
+				auth: true,
+				hide: !isAuth || this.state.loading
 			},
+		];
 
+		const authOpList = [
 			{
 				path: '/login',
 				text: 'Login',
 				component: Login,
-				className: rightNavbarClass,
+				className: fontClass,
 				auth: false,
 				hide: isAuth || this.state.loading
 			},
 			{
-				path: '/list',
-				text: 'List',
-				component: List,
-				className: leftNavbarClass,
-				auth: true,
-				hide: !isAuth || this.state.loading
+				path: '/register',
+				text: 'Register',
+				component: Register,
+				className: fontClass,
+				auth: false,
+				hide: isAuth || this.state.loading
 			},
 			{
 				text: 'Sign out',
 				hide: !isAuth || this.state.loading,
 				auth: true,
-				className: rightNavbarClass
+				className: fontClass
 			}
 		];
 
+		const routerList = [...home, ...navList, ...authOpList];
+
 		return (
 			<div>
-				<NavBar data={navList}></NavBar>
-				<Switch>{navListRouting(navList, isAuth)}</Switch>
+				<div className='header'>
+					<div className="logo">
+						<NavBar data={home}></NavBar>
+					</div>
+					<div className={rightNavbarClass}>
+						<NavBar data={authOpList}></NavBar>
+					</div>
+					<div className={leftNavbarClass}>
+						<NavBar data={navList}></NavBar>
+					</div>
+				</div>
+				<div className='content'>
+					<Switch>{navListRouting(routerList, isAuth)}</Switch>
+				</div>		
 			</div>
 		);
 	}
