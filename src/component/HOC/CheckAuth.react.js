@@ -18,7 +18,7 @@ const withAuthCheking = WrappedComponent => {
 					if (res.status === 200) {
 						if (res.data.code === 0) {
 							console.log(res.data.data);
-							this.setState({ loading: false });
+							// this.setState({ loading: false });
 						} else {
 							this.props.noUser();
 							if (res.data.code === 2) {
@@ -33,15 +33,15 @@ const withAuthCheking = WrappedComponent => {
 								this.props.history.push('/login');
 							}
 
-							this.setState({ loading: false });
+							// this.setState({ loading: false });
 						}
 					} else {
-						this.setState({ loading: false });
+						// this.setState({ loading: false });
 					}
 				})
 				.catch(err => {
 					console.log(err);
-					this.setState({ loading: false });
+					// this.setState({ loading: false });
 				});
 		}
 			
