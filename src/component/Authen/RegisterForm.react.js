@@ -184,7 +184,7 @@ export const RegisterForm = () => {
 				>
 					<Input.Password />
 				</Item>
-				<Item label='Code' rules={[{ required: true }]}>
+				<Item label='Code'>
 					<Row gutter={8}>
 						<Col span={16}>
 							<Item
