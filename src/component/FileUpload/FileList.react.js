@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Table, Button, Modal, Row, Col, Tooltip } from 'antd';
 import { getFileList } from '#/redux/file.redux';
+import { DeleteFile } from '#/utils/DeleteFile';
 import { CloudDownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const { Column } = Table;
@@ -10,6 +11,9 @@ export const FileList = () => {
 	// hooks
 	const [deleteModalVsb, setDeleteModalVsb] = useState(false); // set the delete modal visibility
 	const [loading, setLoading] = useState(true);
+	const [deleteFile, setDeleteFile] = useState({
+		visible: false
+	});
 	const dispatch = useDispatch();
 	const fileState = useSelector(s => s.file);
 
@@ -20,6 +24,14 @@ export const FileList = () => {
 		
 	}, [dispatch]);
 	
+	const deletefile = e => {
+		console.log(e);
+		setDeleteFile({
+			reqId: 11234,
+			visible: true,
+		});
+	};
+
 	return (
 		<React.Fragment>
 			{/* table items are in fileState.myFiles */}
@@ -47,12 +59,17 @@ export const FileList = () => {
 					render={(text, record) =>{
 						return (
 							<Tooltip title="Delete">
-								<Button shape="round" icon={<DeleteOutlined />} />
+								<Button shape="round" icon={<DeleteOutlined />} onClick={() => deletefile()}/>
 							</Tooltip>
 						);
 					}}
 				></Column>
 			</Table>
+			<DeleteFile
+				visible={deleteFile.visible}
+				reqId={deleteFile.reqId}
+				changeVsb={vsb => setDeleteFile({ ...deleteFile, visible: vsb })}
+			></DeleteFile>
 		</React.Fragment>
 	);
 };
