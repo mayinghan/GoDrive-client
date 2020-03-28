@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Table, Button, Modal, Row, Col, Tooltip } from 'antd';
-import { getFileList } from '#/redux/file.redux';
+import { getFileList, deleteFile } from '#/redux/file.redux';
 import { CloudDownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const { Column } = Table;
@@ -19,6 +19,11 @@ export const FileList = () => {
 		});
 		
 	}, [dispatch]);
+
+	const deleteHandler = (filehash, filename) => {
+		console.log('deleting file ', filename);
+		dispatch(deleteFile(filehash, filename));
+	};
 	
 	return (
 		<React.Fragment>
@@ -47,7 +52,7 @@ export const FileList = () => {
 					render={(text, record) =>{
 						return (
 							<Tooltip title="Delete">
-								<Button shape="round" icon={<DeleteOutlined />} />
+								<Button shape="round" onClick={()=>deleteHandler(record.key, record.filename)} icon={<DeleteOutlined />} />
 							</Tooltip>
 						);
 					}}
