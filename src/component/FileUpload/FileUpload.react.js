@@ -7,7 +7,7 @@ import fileutils from '#/utils/files';
 
 const { Dragger } = Upload;
 const THRESHOLD = 10 * 1024 * 1024;
-const SIZE = 2 * 1024 * 1024;
+const SIZE = 6 * 1024 * 1024;
 let pause = false;
 let uploadingList = [];
 
@@ -71,7 +71,17 @@ export const FileUpload = () => {
 			});
 		} else {
 			const uploadedList = await fileutils.getUploaded(hash);
-			setPercentage(parseInt(uploadedList.length * 100 / rawChunkList.length));
+			let tempPct = parseInt(uploadedList.length * 100 / rawChunkList.length);
+			if(tempPct === 100) {
+				tempPct = 99;
+			}
+			setPercentage(prev => {
+				if(prev <= tempPct) {
+					return tempPct;
+				} else {
+					return prev;
+				}
+			});
 			const uploadId =
 				user.username + '-' + new Date().getTime() + '-' + fileList[0].name;
 			const parts = rawChunkList.map(({ file }, index) => ({
@@ -90,6 +100,7 @@ export const FileUpload = () => {
 				.map(({ chunk, chunkId, index }) => {
 					const form = new FormData();
 					form.append('chunk', chunk);
+					form.append('index', index);
 					form.append('uploadId', uploadId);
 					form.append('chunkId', chunkId);
 					form.append('filename', fileList[0].name);
@@ -116,7 +127,6 @@ export const FileUpload = () => {
 				));
 			});
 
-			uploadedList = allXhrList;
 			const start = async () => {
 				if(!allXhrList.length) {
 					fileutils.verifyUpload(fileList[0].name, hash, rawChunkList.length, fileList[0].size).then(() => {
@@ -130,16 +140,25 @@ export const FileUpload = () => {
 				}
 				while(idx < len && max > 0) {
 					max--;
+					uploadingList.push(allXhrList[idx]);
 					allXhrList[idx].open('post','/api/file/uploadchunk');
 					allXhrList[idx].send(requestList[idx].form);
 					allXhrList[idx].onload = e => {
+						const xhrIdx = uploadingList.findIndex(i => i === allXhrList[idx]);
+						uploadingList.splice(xhrIdx, 1);
 						max++;
 						counter++;
 						let p = parseInt(counter * 100 / totalLen);
 						if(p === 100) {
 							p = 99;
 						}
-						setPercentage(p);
+						setPercentage(prev => {
+							if(prev <= p) {
+								return p;
+							} else {
+								return prev;
+							}
+						});
 						if (counter === totalLen) {
 							// finish
 							setUploading(false);
@@ -158,6 +177,8 @@ export const FileUpload = () => {
 							console.log(isPaused());
 							if(!isPaused()) {
 								start();
+							} else {
+								uploadingList.forEach(r => r.abort());
 							}
 						}
 					};
