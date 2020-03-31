@@ -26,9 +26,9 @@ const utils = {
 	},
 
 	// get uploaded chunks
-	getUploaded: function(filehash) {
+	getUploaded: function(filename, filehash) {
 		console.log('filehash %s', filehash);
-		return axios.get(`/api/file/prevChunks?filehash=${filehash}`).then(res => {
+		return axios.get(`/api/file/prevChunks?filehash=${filehash}&filename=${filename}`).then(res => {
 			console.log(res.data.msg);
 			console.log(res.data);
 			if(res.data.code === 0) {
@@ -36,6 +36,11 @@ const utils = {
 			}
 			return res.data.data.uploadedList;
 		});
+	},
+
+	// get download url
+	downloadURL: function(filehash) {
+		return axios.get(`/api/file/url?filehash=${filehash}`);
 	}
 };
 

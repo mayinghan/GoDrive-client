@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Table, Button, Tooltip } from 'antd';
+import axios from 'axios';
 import { getFileList } from '#/redux/file.redux';
 import { DeleteFile } from '#/component/FileUpload/DeleteFile.react';
+import fileUtils from '#/utils/files';
 import { CloudDownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const { Column } = Table;
@@ -31,6 +33,16 @@ export const FileList = () => {
 		setChosenObj({filename: e.filename, key: e.key});
 	};
 
+	const handleDownload = (filename, filehash) => {
+		fileUtils.downloadURL(filehash).then(res => {
+			console.log(res);
+			let a = document.createElement('a');
+			a.setAttribute('download', filename);
+			a.href = res.data;
+			a.click();
+		});
+	};
+
 	return (
 		<React.Fragment>
 			{/* table items are in fileState.myFiles */}
@@ -48,7 +60,7 @@ export const FileList = () => {
 					render={(text, record) =>{
 						return (
 							<Tooltip title="Download">
-								<Button shape="round" icon={<CloudDownloadOutlined />} />
+								<Button shape="round" onClick={()=>handleDownload(record.filename, record.key)} icon={<CloudDownloadOutlined />} />
 							</Tooltip>
 						);
 					}}
