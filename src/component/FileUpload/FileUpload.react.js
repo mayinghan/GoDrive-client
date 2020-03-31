@@ -60,7 +60,7 @@ export const FileUpload = () => {
 				setFileList([]);
 			});
 		} else {
-			const uploadedList = await fileutils.getUploaded(hash);
+			const uploadedList = await fileutils.getUploaded(fileList[0].name, hash);
 			let tempPct = parseInt(uploadedList.length * 100 / rawChunkList.length);
 			if(tempPct === 100) {
 				tempPct = 99;
