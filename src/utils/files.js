@@ -16,9 +16,9 @@ const utils = {
 	},
 
 	// check if file can be instant uploaded
-	instantUpload: function(filehash) {
-		console.log('filehash: %s', filehash);
-		return axios.get(`/api/file/instantupload?filehash=${filehash}`).then(res => {
+	instantUpload: function(filehash, filename) {
+		console.log('filehash: %s, filename: %s', filehash, filename);
+		return axios.get(`/api/file/instantupload?filehash=${filehash}&filename=${filename}`).then(res => {
 			if(res.data.code === 0) {
 				console.log(res.data.msg);
 				return res.data.data.shouldUpload;

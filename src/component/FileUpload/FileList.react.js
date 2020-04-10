@@ -46,7 +46,7 @@ export const FileList = () => {
 	return (
 		<React.Fragment>
 			{/* table items are in fileState.myFiles */}
-			{/* {console.log(fileState.myFiles)} */}
+			{console.log(fileState.myFiles)}
 			<Table 
 				dataSource={fileState.myFiles}
 				loading={loading}>

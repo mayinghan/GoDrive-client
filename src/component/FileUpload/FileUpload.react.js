@@ -290,6 +290,7 @@ export const FileUpload = () => {
 			setPausing(false);
 			pause = false;
 			uploadingList = [];
+			const filename = file.name;
 			let filehash = '';
 			// console.log(file.size);
 			if (file.size <= THRESHOLD) {
@@ -310,7 +311,7 @@ export const FileUpload = () => {
 				setRawChunkList(fileChunkList);
 			}
 			setFileList([file]);
-			const shouldUpload = await fileutils.instantUpload(filehash);
+			const shouldUpload = await fileutils.instantUpload(filehash, filename);
 			console.log('should upload? ', shouldUpload);
 			// if the file can be instant uploaded
 			if(!shouldUpload) {
