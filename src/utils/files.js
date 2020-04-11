@@ -39,8 +39,8 @@ const utils = {
 	},
 
 	// get download url
-	downloadURL: function(filehash) {
-		return axios.get(`/api/file/url?filehash=${filehash}`);
+	downloadURL: function(filehash, filename) {
+		return axios.get(`/api/file/url?filehash=${filehash}&filename=${filename}`);
 	}
 };
 

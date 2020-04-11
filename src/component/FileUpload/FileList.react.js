@@ -34,7 +34,7 @@ export const FileList = () => {
 	};
 
 	const handleDownload = (filename, filehash) => {
-		fileUtils.downloadURL(filehash).then(res => {
+		fileUtils.downloadURL(filehash, filename).then(res => {
 			console.log(res);
 			let a = document.createElement('a');
 			a.setAttribute('download', filename);
