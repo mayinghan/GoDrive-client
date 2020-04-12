@@ -106,13 +106,12 @@ export const RegisterForm = () => {
 	const sendEmail = () => {
 		const email = form.getFieldValue('email').toLowerCase();
 		// start button count donw 90s
-		
+		setButtonLoading({ ...buttonLoading, loading: true });
 		Axios.get(`/api/user/verify?email=${email}`)
 			.then(res => {
 				if (res.data.code === 0) {
 					console.log('send code successfully');
 					message.success('Sent code successfully, please check your email!');
-					setButtonLoading({ ...buttonLoading, loading: true });
 				} else {
 					message.error(res.data.msg);
 					setButtonLoading({ ...buttonLoading, loading: false });

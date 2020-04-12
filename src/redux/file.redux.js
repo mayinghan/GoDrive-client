@@ -71,7 +71,7 @@ export function getFileList() {
 // delete target file from user's file list
 export function deleteFile(filehash, filename) {
 	return dispatch => {
-		return axios.delete(`/api/user/file?filehash=${filehash}`).then(res => {
+		return axios.delete(`/api/user/file?filehash=${filehash}&filename=${filename}`).then(res => {
 			console.log(res.data);
 			if(res.data.code === 0) {
 				dispatch(deleteSuc(filehash));
